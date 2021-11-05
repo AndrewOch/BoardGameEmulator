@@ -12,7 +12,6 @@ public class UsersRepositoryImpl implements UsersRepository {
 
     //language=sql
     private final String SQL_INSERT_USER = "INSERT INTO users(username, email, password_hash) VALUES (?, ?, ?)";
-    //private final String SQL_INSERT_USER = "INSERT INTO users(username, email, password_hash, created_at) VALUES (?, ?, ?, ?)";
     private final String SQL_FIND_USER_BY_LOGIN = "SELECT * FROM users WHERE username=?";
 
 

@@ -2,22 +2,16 @@ package ru.kpfu.itis.servlets;
 
 import ru.kpfu.itis.form.UserForm;
 import ru.kpfu.itis.model.User;
-import ru.kpfu.itis.repositories.UsersRepository;
-import ru.kpfu.itis.repositories.UsersRepositoryImpl;
 import ru.kpfu.itis.services.UsersService;
-import ru.kpfu.itis.services.UsersServicesImpl;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.UnavailableException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.UUID;
 
 @WebServlet("/register")
@@ -26,21 +20,8 @@ public class RegistrationServlet extends HttpServlet {
     private UsersService usersService;
 
     @Override
-    public void init() throws ServletException {
-        try {
-            //Подгружаем драйвер, оно автоматически регистрирует JDBC
-            Class.forName("org.postgresql.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/board-game-emulator-db", "postgres", "12345678");
-
-            UsersRepository usersRepository = new UsersRepositoryImpl(connection);
-            usersService = new UsersServicesImpl(usersRepository);
-        } catch (SQLException e) {
-            System.out.println("Unavailable");
-            throw new UnavailableException("Сайт недоступен!!!");
-        } catch (ClassNotFoundException e) {
-            System.out.println("Class not found");
-            throw new UnavailableException("Сайт недоступен!!!");
-        }
+    public void init(ServletConfig config) throws ServletException {
+        usersService = (UsersService) config.getServletContext().getAttribute("usersService");
     }
 
 
@@ -93,7 +74,7 @@ public class RegistrationServlet extends HttpServlet {
 
                 response.addCookie(cookie);
                 response.addCookie(new Cookie("username", username));
-                response.sendRedirect("games");
+                response.sendRedirect("/games");
                 return;
             } else {
                 status = "Не удалось создать аккаунт!";
@@ -103,6 +84,6 @@ public class RegistrationServlet extends HttpServlet {
         }
 
         request.setAttribute("validation", status);
-        request.getRequestDispatcher("jsp/registration.jsp").forward(request, response);
+        request.getRequestDispatcher("WEB-INF/jsp/registration.jsp").forward(request, response);
     }
 }

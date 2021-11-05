@@ -1,6 +1,4 @@
-package ru.kpfu.itis.models;
-
-import ru.kpfu.itis.model.User;
+package ru.kpfu.itis.model;
 
 public class Auth {
     private Long id;

@@ -4,13 +4,13 @@ import java.sql.Timestamp;
 
 public class Currency {
 
-    private Integer id;
-    private Integer gameId;
+    private Long id;
+    private Long gameId;
     private String name;
     private String description;
     private Timestamp createdAt;
 
-    public Currency(Integer id, Integer gameId, String name, String description, Timestamp createdAt) {
+    public Currency(Long id, Long gameId, String name, String description, Timestamp createdAt) {
         this.id = id;
         this.gameId = gameId;
         this.name = name;
@@ -18,19 +18,22 @@ public class Currency {
         this.createdAt = createdAt;
     }
 
-    public Integer getId() {
+    public Currency() {
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getGameId() {
+    public Long getGameId() {
         return gameId;
     }
 
-    public void setGameId(Integer gameId) {
+    public void setGameId(Long gameId) {
         this.gameId = gameId;
     }
 

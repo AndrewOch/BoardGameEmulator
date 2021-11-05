@@ -1,5 +1,7 @@
 package ru.kpfu.itis.filters;
 
+import ru.kpfu.itis.services.CookieService;
+
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.Cookie;
@@ -8,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 
-@WebFilter(value = {"/profile", "/else"})
+@WebFilter(value = {"/main", "/play", "/games", "/creator"})
 public class SignInFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -20,28 +22,15 @@ public class SignInFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        Cookie cookies[] = request.getCookies();
+        Cookie cookie = CookieService.getCookie(request, "auth");
 
-        if (cookies != null) {
-            for (Cookie cookie: cookies) {
-                if (cookie.getName().equals("auth")) {
-                    System.out.println("Куки из браузера");
-                    System.out.println(cookie.getValue());
-                    filterChain.doFilter(servletRequest, servletResponse);
-                } else {
-                    System.out.println("Пользователь не аутентифицирован!!!");
-                    response.sendRedirect("/signIn");
-                    return;
-                }
-            }
+        if (cookie != null) {
+            System.out.println(cookie.getValue());
+            filterChain.doFilter(servletRequest, servletResponse);
         } else {
             System.out.println("Пользователь не аутентифицирован!!!");
-            response.sendRedirect("/signIn");
-            return;
+            response.sendRedirect("/auth");
         }
-
-        filterChain.doFilter(servletRequest, servletResponse);
-
     }
 
     @Override

@@ -4,6 +4,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.kpfu.itis.form.LoginForm;
 import ru.kpfu.itis.form.UserForm;
+import ru.kpfu.itis.model.Auth;
 import ru.kpfu.itis.model.User;
 import ru.kpfu.itis.repositories.AuthRepository;
 import ru.kpfu.itis.repositories.UsersRepository;
@@ -37,7 +38,6 @@ public class UsersServicesImpl implements UsersService {
 
         String passwordHash = passwordEncoder.encode(userForm.getPassword());
         user.setPasswordHash(passwordHash);
-        //user.setCreatedAt(Timestamp.valueOf(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy"))));
         return usersRepository.save(user);
     }
 
@@ -51,7 +51,12 @@ public class UsersServicesImpl implements UsersService {
             if (passwordEncoder.matches(loginForm.getPassword(), user.getPasswordHash())) {
                 System.out.println("Вход выполнен!");
                 String cookieValue = UUID.randomUUID().toString();
-                System.out.println(cookieValue);
+
+                Auth auth = new Auth();
+                auth.setUser(user);
+                auth.setCookieValue(cookieValue);
+                authRepository.save(auth);
+
                 Cookie cookie = new Cookie("auth", cookieValue);
                 cookie.setMaxAge(10 * 60 * 60);
                 return cookie;
@@ -61,5 +66,15 @@ public class UsersServicesImpl implements UsersService {
         }
 
         return null;
+    }
+
+    @Override
+    public User findUserByCookieValue(String cookieValue) {
+        Auth auth = authRepository.findByCookieValue(cookieValue);
+        if (auth != null) {
+            return auth.getUser();
+        } else {
+            return null;
+        }
     }
 }

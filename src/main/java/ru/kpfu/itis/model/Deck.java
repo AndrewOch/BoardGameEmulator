@@ -8,12 +8,17 @@ public class Deck {
     private String name;
     private String description;
     private ArrayList<Card> cards;
+    private ArrayList<Card> waste;
 
     public Deck(Integer id, String name, String description, ArrayList<Card> cards) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.cards = cards;
+        this.waste = new ArrayList<>();
+    }
+
+    public Deck() {
     }
 
     public Integer getId() {
