@@ -39,7 +39,6 @@
             <button type="submit">Войти</button>
         </form>
     </div>
-
 </div>
 
 <div style="margin: 0 auto;

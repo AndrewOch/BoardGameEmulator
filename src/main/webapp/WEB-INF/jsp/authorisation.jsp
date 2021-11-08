@@ -40,8 +40,8 @@
         <form class="menu-option" method="get" action="${pageContext.request.contextPath}/auth">
             <button type="submit" class="selected">Вход</button>
         </form>
-        <form class="menu-option" method="get" action="${pageContext.request.contextPath}/register">
-            <button type="submit">Регистрация</button>
+        <form class="menu-option" method="get" action="${pageContext.request.contextPath}/auth">
+            <button type="submit" name="register-button">Регистрация</button>
         </form>
     </div>
     <form action="${pageContext.request.contextPath}/auth" method="post">

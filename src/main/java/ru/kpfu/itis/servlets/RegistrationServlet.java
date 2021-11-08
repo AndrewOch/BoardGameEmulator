@@ -27,7 +27,7 @@ public class RegistrationServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("jsp/registration.jsp").forward(request, response);
+        request.getRequestDispatcher("WEB-INF/jsp/register.jsp").forward(request, response);
     }
 
     @Override
@@ -42,19 +42,19 @@ public class RegistrationServlet extends HttpServlet {
         if (username.length() < 4) {
             status = "Длина ника - не менее 4 символов!";
             request.setAttribute("validation", status);
-            request.getRequestDispatcher("jsp/registration.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/jsp/register.jsp").forward(request, response);
             return;
         }
         if (email.length() == 0) {
             status = "Поле почты не должно быть пустым!";
             request.setAttribute("validation", status);
-            request.getRequestDispatcher("jsp/registration.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/jsp/register.jsp").forward(request, response);
             return;
         }
         if (password.length() < 8) {
             status = "Длина пароля - не менее 8 символов!";
             request.setAttribute("validation", status);
-            request.getRequestDispatcher("jsp/registration.jsp").forward(request, response);
+            request.getRequestDispatcher("WEB-INF/jsp/register.jsp").forward(request, response);
             return;
         }
         if (password.equals(retypePassword)) {
@@ -84,6 +84,6 @@ public class RegistrationServlet extends HttpServlet {
         }
 
         request.setAttribute("validation", status);
-        request.getRequestDispatcher("WEB-INF/jsp/registration.jsp").forward(request, response);
+        request.getRequestDispatcher("WEB-INF/jsp/register.jsp").forward(request, response);
     }
 }

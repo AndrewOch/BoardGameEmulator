@@ -105,6 +105,8 @@
         if (playGameId != null) {
             playGame(playGameId)
         }
+
+        ${cookie.get("username").value}
     });
 
     function throwDices() {
@@ -182,31 +184,37 @@
                     newContent = "<h3 class='center'>Нет колод</h3>";
                 } else {
                     for (i = 0; i < decks.length; i++) {
+                        let id = decks[i].id;
                         let name = decks[i].name;
                         let description = decks[i].description;
                         let cards = decks[i].cards;
                         let count = cards.length
+
                         newContent += `<div class="container-item">
             <h2>` + name + `</h2>
             <h3>
                 <p>` + description + `</p>
-                <p>Карт:` + count + `</p>
-                <p>Сброс:</p>
+                <p id="deck-count-` + id + `">Карт: ` + count + `</p>
+                <p id="waste-count-` + id + `">Сброс: 0</p>
             </h3>
-            <div class="card">
-                <h3>Карта</h3>
-                <h4>Описание карты</h4>
-                <h4>Ценность</h4>
-                <h4>Валюта</h4>
+            <div class="card" id="card-` + id + `">
+                <h3 id="card-name-` + id + `"></h3>
+                <h4 id="card-description-` + id + `"></h4>
+                <h4 id="card-value-` + id + `"></h4>
+                <h4 id="card-currency-` + id + `"></h4>
             </div>
-            <div class="menu">
-                <form class="menu-option" method="post" action="/play">
-                    <button type="submit">Взять</button>
-                </form>
-                <form class="menu-option" method="post" action="/creator">
-                    <button type="submit">Перетасовать</button>
-                </form>
-            </div>
+             <table>
+                <tr>
+                    <td>
+                        <button onclick="takeCard(` + id + `)">Взять</button>
+                    </td>
+                    <td>
+                        <button onclick="shuffleDeck(` + id + `)">Перетасовать</button>
+                    </td>
+                </tr>
+             </table>
+
+</div>
         </div>`;
                     }
                 }
@@ -216,6 +224,81 @@
             },
             error: function () {
 
+            }
+        })
+    }
+
+    function takeCard(deckId) {
+        if (!isAuthenticated() || deckId == null) {
+            return;
+        }
+
+        $.ajax({
+            url: '/play',           /* Куда пойдет запрос */
+            method: 'post',             /* Метод передачи (post или get) */
+            dataType: 'json',          /* Тип данных в ответе (xml, json, script, html). */
+            data: {
+                "deck_to_take_card_from": deckId
+            },
+            success: function (deck) {
+
+                if (deck == null) {
+                    return;
+                }
+
+                let id = deck.deckId;
+                let remainDeck = deck.deck;
+                let waste = deck.waste;
+
+                document.getElementById('deck-count-' + id).textContent = "Карт: " + remainDeck.length;
+                document.getElementById('waste-count-' + id).textContent = "Сброс: " + waste.length;
+
+                let card = waste[waste.length - 1]
+                document.getElementById('card-name-' + id).innerText = card.name;
+                document.getElementById('card-description-' + id).innerText = card.description;
+                document.getElementById('card-value-' + id).innerText = card.value;
+                document.getElementById('card-currency' + id).innerText = card.currency;
+
+            },
+            error: function (response) {
+                alert("Карт больше нет!");
+            }
+        })
+    }
+
+    function shuffleDeck(deckId) {
+        if (!isAuthenticated() || deckId == null) {
+            return;
+        }
+
+        $.ajax({
+            url: '/play',           /* Куда пойдет запрос */
+            method: 'post',             /* Метод передачи (post или get) */
+            dataType: 'json',          /* Тип данных в ответе (xml, json, script, html). */
+            data: {
+                "deck_to_shuffle": deckId
+            },
+            success: function (deck) {
+
+                if (deck == null) {
+                    return;
+                }
+
+                let id = deck.deckId;
+                let remainDeck = deck.deck;
+                let waste = deck.waste;
+
+                document.getElementById('deck-count-' + id).textContent = "Карт: " + remainDeck.length;
+                document.getElementById('waste-count-' + id).textContent = "Сброс: " + waste.length;
+
+                document.getElementById('card-name-' + id).innerText = "";
+                document.getElementById('card-description-' + id).innerText = "";
+                document.getElementById('card-value-' + id).innerText = "";
+                document.getElementById('card-currency' + id).innerText = "";
+
+            },
+            error: function (response) {
+                alert(response);
             }
         })
     }

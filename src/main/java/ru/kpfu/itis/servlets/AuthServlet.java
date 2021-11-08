@@ -24,6 +24,13 @@ public class AuthServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        String registerButton = req.getParameter("register-button");
+        if (registerButton != null) {
+            req.getRequestDispatcher("WEB-INF/jsp/register.jsp").forward(req, resp);
+            return;
+        }
+
         req.getRequestDispatcher("WEB-INF/jsp/authorisation.jsp").forward(req, resp);
     }
 
