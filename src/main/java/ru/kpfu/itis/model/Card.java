@@ -2,14 +2,14 @@ package ru.kpfu.itis.model;
 
 public class Card {
 
-    private Integer id;
-    private Integer deckId;
-    private Integer currencyId;
+    private Long id;
+    private Long deckId;
+    private Long currencyId;
     private String name;
     private String description;
     private Integer value;
 
-    public Card(Integer id, Integer deckId, Integer currencyId, String name, String description, Integer value) {
+    public Card(Long id, Long deckId, Long currencyId, String name, String description, Integer value) {
         this.id = id;
         this.deckId = deckId;
         this.currencyId = currencyId;
@@ -21,27 +21,27 @@ public class Card {
     public Card() {
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getDeckId() {
+    public Long getDeckId() {
         return deckId;
     }
 
-    public void setDeckId(Integer deckId) {
+    public void setDeckId(Long deckId) {
         this.deckId = deckId;
     }
 
-    public Integer getCurrencyId() {
+    public Long getCurrencyId() {
         return currencyId;
     }
 
-    public void setCurrencyId(Integer currencyId) {
+    public void setCurrencyId(Long currencyId) {
         this.currencyId = currencyId;
     }
 

@@ -69,143 +69,44 @@
             </table>
         </div>
         <div class="container-item">
-            <h2>Игра1 - Валюты</h2>
-            <div class="wrapper-8">
-                <div class="inner-container-item">
-                    <h3>10</h3>
-                    <h4>Монеты</h4>
-                </div>
-                <div class="inner-container-item">
-                    <h3>16</h3>
-                    <h4>Кристаллы</h4>
-                </div>
-                <div class="inner-container-item">
-                    <h3>1000</h3>
-                    <h4>Очки</h4>
-                </div>
-            </div>
+            <h2 id="title"></h2>
+            <h4 id="description"></h4>
         </div>
     </div>
+    <div class="menu"><h2 class="menu-option">Валюты</h2></div>
+    <div class="wrapper-8" id="currencies-container"></div>
+    <br>
+    <br>
     <div class="menu"><h2 class="menu-option">Колоды</h2></div>
-    <div class="wrapper-3-decks">
+    <div class="wrapper-3-decks" id="decks-container"></div>
 
-        <c:forEach var="game" items="${decks}">
-            <div class="container-item">
-                <h2><c:out value="${game.name}"/></h2>
-                <h3>
-                    <p><c:out value="${game.description}"/></p>
-                    <p>Карт: <c:out value="${game.cards.size()}"/></p>
-                    <p>Сброс: <c:out value="${game.waste.size()}"/></p>
-                </h3>
-                <div class="card">
-                    <h3>Карта</h3>
-                    <h4>Описание карты</h4>
-                    <h4>Ценность</h4>
-                    <h4>Валюта</h4>
-                </div>
-                <div class="menu">
-                    <form class="menu-option" method="post" action="${pageContext.request.contextPath}/play">
-                        <button type="submit">Взять</button>
-                    </form>
-                    <form class="menu-option" method="post" action="${pageContext.request.contextPath}/creator">
-                        <button type="submit">Перетасовать</button>
-                    </form>
-                </div>
-            </div>
-        </c:forEach>
-        <div class="container-item">
-            <h2>Колода1</h2>
-            <h3>
-                <p>Описание Колоды</p>
-                <p>Карт: 4</p>
-                <p>Сброс: 1</p>
-            </h3>
-            <div class="card">
-                <h3>Карта</h3>
-                <h4>Описание карты</h4>
-                <h4>Ценность</h4>
-                <h4>Валюта</h4>
-            </div>
-            <div class="menu">
-                <form class="menu-option" method="post" action="${pageContext.request.contextPath}/play">
-                    <button type="submit">Взять</button>
-                </form>
-                <form class="menu-option" method="post" action="${pageContext.request.contextPath}/creator">
-                    <button type="submit">Перетасовать</button>
-                </form>
-            </div>
-        </div>
-        <div class="container-item">
-            <h2>Колода1</h2>
-            <h3>
-                <p>Описание Колоды</p>
-                <p>Карт: 4</p>
-                <p>Сброс: 1</p>
-            </h3>
-            <div class="card">
-                <h3>Карта</h3>
-                <h4>Описание карты</h4>
-                <h4>Ценность</h4>
-                <h4>Валюта</h4>
-            </div>
-            <div class="menu">
-                <form class="menu-option" method="post" action="${pageContext.request.contextPath}/play">
-                    <button type="submit">Взять</button>
-                </form>
-                <form class="menu-option" method="post" action="${pageContext.request.contextPath}/creator">
-                    <button type="submit">Перетасовать</button>
-                </form>
-            </div>
-        </div>
-        <div class="container-item">
-            <h2>Колода1</h2>
-            <h3>
-                <p>Описание Колоды</p>
-                <p>Карт: 4</p>
-                <p>Сброс: 1</p>
-            </h3>
-            <div class="card">
-                <h3>Карта</h3>
-                <h4>Описание карты</h4>
-                <h4>Ценность</h4>
-                <h4>Валюта</h4>
-            </div>
-            <div class="menu">
-                <form class="menu-option" method="post" action="${pageContext.request.contextPath}/play">
-                    <button type="submit">Взять</button>
-                </form>
-                <form class="menu-option" method="post" action="${pageContext.request.contextPath}/creator">
-                    <button type="submit">Перетасовать</button>
-                </form>
-            </div>
-        </div>
-        <div class="container-item">
-            <h2>Колода1</h2>
-            <h3>
-                <p>Описание Колоды</p>
-                <p>Карт: 4</p>
-                <p>Сброс: 1</p>
-            </h3>
-            <div class="card">
-                <h3>Карта</h3>
-                <h4>Описание карты</h4>
-                <h4>Ценность</h4>
-                <h4>Валюта</h4>
-            </div>
-            <div class="menu">
-                <form class="menu-option" method="post" action="${pageContext.request.contextPath}/play">
-                    <button type="submit">Взять</button>
-                </form>
-                <form class="menu-option" method="post" action="${pageContext.request.contextPath}/creator">
-                    <button type="submit">Перетасовать</button>
-                </form>
-            </div>
-        </div>
-    </div>
 </div>
 
-
 <script>
+
+    function getUrlParameter(sParam) {
+        let sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1];
+            }
+        }
+        return false;
+    }
+
+    $(document).ready(function () {
+        let playGameId = getUrlParameter("current_play_game_id");
+        if (playGameId != null) {
+            playGame(playGameId)
+        }
+    });
+
     function throwDices() {
         let firstMax = document.getElementById('dice-1').value
         let secondMax = document.getElementById('dice-2').value
@@ -225,9 +126,9 @@
     }
 
     function isAuthenticated() {
-        var docCookies = document.cookie;
-        var prefix = "auth=";
-        var begin = docCookies.indexOf("; " + prefix);
+        let docCookies = document.cookie;
+        let prefix = "auth=";
+        let begin = docCookies.indexOf("; " + prefix);
         if (begin === -1) {
             begin = docCookies.indexOf(prefix);
             if (begin !== 0) return false;
@@ -235,20 +136,85 @@
         return true;
     }
 
-    function editGame(id) {
+    function playGame(id) {
 
         if (!isAuthenticated()) {
             return;
         }
 
         $.ajax({
-            url: '/games',           /* Куда пойдет запрос */
-            method: 'get',             /* Метод передачи (post или get) */
+            url: '/play',           /* Куда пойдет запрос */
+            method: 'post',             /* Метод передачи (post или get) */
             dataType: 'json',          /* Тип данных в ответе (xml, json, script, html). */
             data: {
-                current_edit_game_id: id
+                current_play_game_id: id
             },
-            success: function () {
+            success: function (game) {
+
+                let i;
+                if (game == null) {
+                    return;
+                }
+                let decks = game.decks;
+                let currencies = game.currencies;
+
+                document.getElementById('title').textContent = game.name;
+                document.getElementById('description').textContent = game.description;
+
+                let currenciesContainer = document.getElementById('currencies-container');
+
+                let newContent = ""
+                if (currencies.length === 0) {
+                    newContent = "<h3 class='center'>Нет валют</h3>";
+                } else {
+                    for (i = 0; i < currencies.length; i++) {
+                        let name = currencies[i].name;
+                        newContent += `<div class="square"><h3>` + name + `</h3><input min="-1000" max="1000" type="number"
+                                                placeholder="0" style="height: 45px; margin: auto auto 10%; width: 60%"></div>`;
+                    }
+                }
+                currenciesContainer.innerHTML = newContent;
+
+                let decksContainer = document.getElementById('decks-container');
+
+                newContent = ""
+                if (decks.length === 0) {
+                    newContent = "<h3 class='center'>Нет колод</h3>";
+                } else {
+                    for (i = 0; i < decks.length; i++) {
+                        let name = decks[i].name;
+                        let description = decks[i].description;
+                        let cards = decks[i].cards;
+                        let count = cards.length
+                        newContent += `<div class="container-item">
+            <h2>` + name + `</h2>
+            <h3>
+                <p>` + description + `</p>
+                <p>Карт:` + count + `</p>
+                <p>Сброс:</p>
+            </h3>
+            <div class="card">
+                <h3>Карта</h3>
+                <h4>Описание карты</h4>
+                <h4>Ценность</h4>
+                <h4>Валюта</h4>
+            </div>
+            <div class="menu">
+                <form class="menu-option" method="post" action="/play">
+                    <button type="submit">Взять</button>
+                </form>
+                <form class="menu-option" method="post" action="/creator">
+                    <button type="submit">Перетасовать</button>
+                </form>
+            </div>
+        </div>`;
+                    }
+                }
+
+                decksContainer.innerHTML = newContent;
+
+            },
+            error: function () {
 
             }
         })

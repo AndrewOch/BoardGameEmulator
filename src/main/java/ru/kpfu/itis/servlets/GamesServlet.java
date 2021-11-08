@@ -43,6 +43,12 @@ public class GamesServlet extends HttpServlet {
                 req.getRequestDispatcher("WEB-INF/jsp/creator.jsp").forward(req, resp);
                 return;
             }
+
+            String currentPlayGameId = req.getParameter("current_play_game_id");
+            if (currentPlayGameId != null) {
+                req.getRequestDispatcher("WEB-INF/jsp/play.jsp").forward(req, resp);
+                return;
+            }
         }
         req.getRequestDispatcher("WEB-INF/jsp/games.jsp").forward(req, resp);
     }

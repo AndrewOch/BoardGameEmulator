@@ -41,7 +41,7 @@ public class AuthServlet extends HttpServlet {
             response.addCookie(new Cookie("username", username));
             response.addCookie(cookie);
 
-            request.getRequestDispatcher("WEB-INF/jsp/authorisation.jsp").forward(request, response);
+            response.sendRedirect("/games");
         } else {
             request.setAttribute("signInStatus", "Неправильный логин или пароль");
             request.getRequestDispatcher("WEB-INF/jsp/authorisation.jsp").forward(request, response);

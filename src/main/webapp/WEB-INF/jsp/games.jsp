@@ -61,11 +61,11 @@
                     <p>Валют: <c:out value="${game.getCurrencies().size()}"/></p>
                 </h3>
                 <div class="menu">
-                    <form class="menu-option" method="get" action="${pageContext.request.contextPath}/play">
-                        <button type="submit">Играть</button>
+                    <form class="menu-option" method="get" action="${pageContext.request.contextPath}/games">
+                        <button type="submit" name="current_play_game_id" value="${game.getId()}">Играть</button>
                     </form>
-                    <form class="menu-option" method="get" action="${pageContext.request.contextPath}/creator">
-                        <button type="submit" onclick="editGame(${game.id})">Редактировать</button>
+                    <form class="menu-option" method="get" action="${pageContext.request.contextPath}/games">
+                        <button type="submit" name="current_edit_game_id" value="${game.getId()}">Редактировать</button>
                     </form>
                 </div>
             </div>
@@ -89,60 +89,5 @@
     </div>
 </div>
 
-
-<script>
-    function sendProduct() {
-        let title = document.getElementById('title').value
-        let cost = document.getElementById('cost').value
-        let description = document.getElementById('description').value
-
-        var product = {
-            title: title,
-            cost: cost,
-            description: description
-        }
-        $.ajax({
-            url: '/products',           /* Куда пойдет запрос */
-            method: 'post',             /* Метод передачи (post или get) */
-            dataType: 'json',          /* Тип данных в ответе (xml, json, script, html). */
-            data: {
-                product: JSON.stringify(product) /* Параметры передаваемые в запросе. */
-            },
-            success: function (data) {   /* функция которая будет выполнена после успешного запроса.  */
-                alert(data);            /* В переменной data содержится ответ от /products. */
-            }
-        })
-    }
-
-    function isAuthenticated() {
-        var docCookies = document.cookie;
-        var prefix = "auth=";
-        var begin = docCookies.indexOf("; " + prefix);
-        if (begin === -1) {
-            begin = docCookies.indexOf(prefix);
-            if (begin !== 0) return false;
-        }
-        return true;
-    }
-
-    function editGame(id) {
-
-        if (!isAuthenticated()) {
-            return;
-        }
-
-        $.ajax({
-            url: '/games',           /* Куда пойдет запрос */
-            method: 'get',             /* Метод передачи (post или get) */
-            dataType: 'json',          /* Тип данных в ответе (xml, json, script, html). */
-            data: {
-                current_edit_game_id: id
-            },
-            success: function () {
-
-            }
-        })
-    }
-</script>
 </body>
 </html>

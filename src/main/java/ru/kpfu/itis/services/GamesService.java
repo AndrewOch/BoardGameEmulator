@@ -15,7 +15,7 @@ public interface GamesService {
 
     Game addGame(GameForm gameForm);
 
-    Deck addDeck(DeckForm deckForm);
+    Deck addDeck(DeckForm deckForm, Long gameId);
 
     Card addCard(CardForm cardForm);
 
@@ -31,6 +31,8 @@ public interface GamesService {
 
     void linkGameToUser(Long gameId, Long userId);
 
+    void deleteDuplicateCards(Integer uniquenessToken, Integer count);
+
     List<Game> findAllGames();
 
     List<Deck> findAllDecks();
@@ -41,11 +43,25 @@ public interface GamesService {
 
     Game findGameById(Long gameId);
 
+    Deck findDeckById(Long deckId);
+
+    Card findCardById(Long cardId);
+
+    Currency findCurrencyById(Long currencyId);
+
     List<Deck> findDecksByGameId(Long gameId);
 
     List<Currency> findCurrenciesByGameId(Long gameId);
 
-    List<Card> findCardsByDeckId(Long gameId);
+    List<Card> findCardsByDeckId(Long deckId);
 
     List<Game> findGamesByUserId(Long userId);
+
+    Game updateGameInfoById(Long id, String name, String description);
+
+    Currency updateCurrencyInfoById(Long id, String name, String description);
+
+    Deck updateDeckInfoById(Long id, String name, String description);
+
+    Card updateCardInfoById(Long id, String name, String description, Long currencyId, Integer value);
 }

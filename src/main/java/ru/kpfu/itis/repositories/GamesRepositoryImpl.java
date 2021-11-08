@@ -17,6 +17,8 @@ public class GamesRepositoryImpl implements GamesRepository {
     private final String FIND_GAMES_BY_USER_ID = "SELECT g.id, g.game_name, g.game_description FROM game g INNER JOIN user_games u_g ON g.id = u_g.game_id INNER JOIN users ON u_g.user_id = users.id WHERE user_id=?;";
     private final String FIND_ALL = "SELECT * FROM game;";
     private final String LINK_GAME_TO_USER = "INSERT INTO user_games (user_id, game_id) VALUES (?,?)";
+    private final String FIND_GAME_BY_ID = "SELECT * FROM game WHERE id=?;";
+    private final String UPDATE_GAME_INFO_BY_ID = "update game set game_name = ?, game_description = ? where id = ?;";
 
 
     public GamesRepositoryImpl(Connection connection) {
@@ -39,6 +41,16 @@ public class GamesRepositoryImpl implements GamesRepository {
 
     @Override
     public Optional<Game> findById(Long id) {
+        ResultSet resultSet = null;
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(FIND_GAME_BY_ID);
+            preparedStatement.setLong(1, id);
+            resultSet = preparedStatement.executeQuery();
+
+            return Optional.ofNullable(rowMapper.rowMap(resultSet));
+
+        } catch (SQLException e) {
+        }
         return Optional.empty();
     }
 
@@ -93,6 +105,24 @@ public class GamesRepositoryImpl implements GamesRepository {
         }
     }
 
+    @Override
+    public Game updateGameInfoById(Long id, String name, String description) {
+        ResultSet resultSet = null;
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_GAME_INFO_BY_ID, Statement.RETURN_GENERATED_KEYS);
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, description);
+            preparedStatement.setLong(3, id);
+            preparedStatement.executeUpdate();
+            resultSet = preparedStatement.getGeneratedKeys();
+
+            return rowMapper.rowMap(resultSet);
+
+        } catch (SQLException e) {
+
+        }
+        return null;
+    }
 
     private RowMapper<Game> rowMapper = ((resultSet) -> {
         if (resultSet.next()) {
@@ -105,7 +135,6 @@ public class GamesRepositoryImpl implements GamesRepository {
             return null;
         }
     });
-
 
     private RowMapper<List<Game>> rowMapGames = ((resultSet) -> {
         List<Game> products = new ArrayList<>();

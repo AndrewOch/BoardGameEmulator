@@ -13,7 +13,9 @@ import ru.kpfu.itis.repositories.CurrencyRepository;
 import ru.kpfu.itis.repositories.DecksRepository;
 import ru.kpfu.itis.repositories.GamesRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class GamesServiceImpl implements GamesService {
 
@@ -43,12 +45,13 @@ public class GamesServiceImpl implements GamesService {
     }
 
     @Override
-    public Deck addDeck(DeckForm deckForm) {
+    public Deck addDeck(DeckForm deckForm, Long gameId) {
         Deck deck = new Deck();
         deck.setName(deckForm.getName());
         deck.setDescription(deckForm.getDescription());
-
-        return decksRepository.save(deck);
+        deck = decksRepository.save(deck);
+        decksRepository.linkDeckToGame(deck.getId(), gameId);
+        return deck;
     }
 
     @Override
@@ -56,16 +59,19 @@ public class GamesServiceImpl implements GamesService {
         Card card = new Card();
         card.setName(cardForm.getName());
         card.setDescription(cardForm.getDescription());
+        card.setValue(cardForm.getValue());
+        card.setCurrencyId(cardForm.getCurrencyId());
+        card.setDeckId(cardForm.getDeckId());
         return cardsRepository.save(card);
     }
 
     @Override
     public Currency addCurrency(CurrencyForm currencyForm) {
-        Currency game = new Currency();
-        game.setName(currencyForm.getName());
-        game.setDescription(currencyForm.getDescription());
-
-        return currencyRepository.save(game);
+        Currency currency = new Currency();
+        currency.setName(currencyForm.getName());
+        currency.setDescription(currencyForm.getDescription());
+        currency.setGameId(currencyForm.getGameId());
+        return currencyRepository.save(currency);
     }
 
     @Override
@@ -94,6 +100,11 @@ public class GamesServiceImpl implements GamesService {
     }
 
     @Override
+    public void deleteDuplicateCards(Integer uniquenessToken, Integer count) {
+        cardsRepository.deleteDuplicates(uniquenessToken, count);
+    }
+
+    @Override
     public List<Game> findAllGames() {
         return gamesRepository.findAll();
     }
@@ -115,7 +126,52 @@ public class GamesServiceImpl implements GamesService {
 
     @Override
     public Game findGameById(Long gameId) {
-        return null;
+        Optional<Game> optionalGame = gamesRepository.findById(gameId);
+        if (optionalGame.isEmpty()) {
+            return null;
+        }
+
+        Game game = optionalGame.get();
+        game.setCurrencies((ArrayList<Currency>) currencyRepository.findCurrenciesByGameId(gameId));
+
+        ArrayList<Deck> decks = (ArrayList<Deck>) decksRepository.findDecksByGameId(gameId);
+
+        for (Deck deck : decks) {
+            deck.setCards((ArrayList<Card>) cardsRepository.findCardsByDeckId(deck.getId()));
+        }
+
+        game.setDecks(decks);
+
+        return game;
+    }
+
+    @Override
+    public Deck findDeckById(Long deckId) {
+        Optional<Deck> optionalGame = decksRepository.findById(deckId);
+        if (optionalGame.isEmpty()) {
+            return null;
+        }
+        Deck deck = optionalGame.get();
+        deck.setCards((ArrayList<Card>) findCardsByDeckId(deckId));
+        return deck;
+    }
+
+    @Override
+    public Card findCardById(Long cardId) {
+        Optional<Card> optional = cardsRepository.findById(cardId);
+        if (optional.isEmpty()) {
+            return null;
+        }
+        return optional.get();
+    }
+
+    @Override
+    public Currency findCurrencyById(Long currencyId) {
+        Optional<Currency> optional = currencyRepository.findById(currencyId);
+        if (optional.isEmpty()) {
+            return null;
+        }
+        return optional.get();
     }
 
     @Override
@@ -129,12 +185,38 @@ public class GamesServiceImpl implements GamesService {
     }
 
     @Override
-    public List<Card> findCardsByDeckId(Long gameId) {
-        return null;
+    public List<Card> findCardsByDeckId(Long deckId) {
+        return cardsRepository.findCardsByDeckId(deckId);
     }
 
     @Override
     public List<Game> findGamesByUserId(Long userId) {
-        return gamesRepository.findGamesByUserId(userId);
+        List<Game> games = gamesRepository.findGamesByUserId(userId);
+        for (Game game : games) {
+            game.setDecks((ArrayList<Deck>) decksRepository.findDecksByGameId(game.getId()));
+            game.setCurrencies((ArrayList<Currency>) currencyRepository.findCurrenciesByGameId(game.getId()));
+        }
+        return games;
     }
+
+    @Override
+    public Game updateGameInfoById(Long id, String name, String description) {
+        return gamesRepository.updateGameInfoById(id, name, description);
+    }
+
+    @Override
+    public Currency updateCurrencyInfoById(Long id, String name, String description) {
+        return currencyRepository.updateCurrencyInfoById(id, name, description);
+    }
+
+    @Override
+    public Deck updateDeckInfoById(Long id, String name, String description) {
+        return decksRepository.updateDeckInfoById(id, name, description);
+    }
+
+    @Override
+    public Card updateCardInfoById(Long id, String name, String description, Long currencyId, Integer value) {
+        return cardsRepository.updateCardInfoById(id, name, description, currencyId, value);
+    }
+
 }

@@ -8,4 +8,7 @@ public interface GamesRepository extends ru.kpfu.itis.repostories.CrudRepository
     List<Game> findGamesByUserId(Long userId);
 
     void linkGameToUser(Long gameId, Long userId);
+
+    Game updateGameInfoById(Long id, String name, String description);
+
 }
