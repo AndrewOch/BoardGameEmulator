@@ -29,6 +29,7 @@ public class SignInFilter implements Filter {
         } else {
             System.out.println("Пользователь не аутентифицирован!!!");
             response.sendRedirect("/auth");
+            return;
         }
 
         filterChain.doFilter(servletRequest, servletResponse);

@@ -70,8 +70,6 @@ public class UsersRepositoryImpl implements UsersRepository {
                 user.setUsername(resultSet.getString("username"));
                 user.setPasswordHash(resultSet.getString("password_hash"));
                 user.setEmail(resultSet.getString("email"));
-                //user.setCreatedAt(Timestamp.valueOf(resultSet.getString("created_at")));
-
             }
         } catch (SQLException throwables) {
             //

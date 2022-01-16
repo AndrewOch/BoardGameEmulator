@@ -30,7 +30,6 @@ public class AuthServlet extends HttpServlet {
             req.getRequestDispatcher("WEB-INF/jsp/register.jsp").forward(req, resp);
             return;
         }
-
         req.getRequestDispatcher("WEB-INF/jsp/authorisation.jsp").forward(req, resp);
     }
 

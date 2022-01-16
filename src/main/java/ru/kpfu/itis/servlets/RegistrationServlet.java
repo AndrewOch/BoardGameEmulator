@@ -74,7 +74,7 @@ public class RegistrationServlet extends HttpServlet {
 
                 response.addCookie(cookie);
                 response.addCookie(new Cookie("username", username));
-                response.sendRedirect("/games");
+                request.getRequestDispatcher("WEB-INF/jsp/games.jsp").forward(request, response);
                 return;
             } else {
                 status = "Не удалось создать аккаунт!";

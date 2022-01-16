@@ -72,8 +72,6 @@ public class PlayServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
 
-        String currentEditGameId = req.getParameter("current_edit_game_id");
-
         try {
             req.getRequestDispatcher("WEB-INF/jsp/play.jsp").forward(req, resp);
         } catch (ServletException | IOException e) {
