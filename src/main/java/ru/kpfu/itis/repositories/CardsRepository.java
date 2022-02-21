@@ -1,16 +1,18 @@
 package ru.kpfu.itis.repositories;
 
+import org.springframework.data.repository.CrudRepository;
 import ru.kpfu.itis.model.Card;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface CardsRepository extends ru.kpfu.itis.repostories.CrudRepository<Card> {
+public interface CardsRepository extends CrudRepository<Card, Long> {
     List<Card> findCardsByDeckId(Long deckId);
 
     void deleteDuplicates(Integer uniquenessToken, Integer count);
 
     Integer getDuplicatesCount(Integer uniquenessToken);
 
-    Card updateCardInfoById(Long id, String name, String description, Long currencyId, Integer value);
+    Optional<Card> updateCardInfoById(Long id, String name, String description, Long currencyId, Integer value);
 
 }

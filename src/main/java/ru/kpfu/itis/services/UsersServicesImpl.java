@@ -10,6 +10,7 @@ import ru.kpfu.itis.repositories.AuthRepository;
 import ru.kpfu.itis.repositories.UsersRepository;
 
 import javax.servlet.http.Cookie;
+import java.util.Optional;
 import java.util.UUID;
 
 public class UsersServicesImpl implements UsersService {
@@ -44,7 +45,7 @@ public class UsersServicesImpl implements UsersService {
     @Override
     public Cookie signIn(LoginForm loginForm) {
 
-        User user = usersRepository.findByLogin(loginForm.getLogin());
+        User user = usersRepository.findByLogin(loginForm.getLogin()).get();
 
         System.out.println(user);
         if (user != null) {
@@ -70,7 +71,7 @@ public class UsersServicesImpl implements UsersService {
 
     @Override
     public User findUserByCookieValue(String cookieValue) {
-        Auth auth = authRepository.findByCookieValue(cookieValue);
+        Auth auth = authRepository.findByCookieValue(cookieValue).get();
         if (auth != null) {
             return auth.getUser();
         } else {

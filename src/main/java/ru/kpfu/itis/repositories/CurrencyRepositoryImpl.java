@@ -1,6 +1,10 @@
 package ru.kpfu.itis.repositories;
 
-import ru.kpfu.itis.mapper.RowMapper;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import ru.kpfu.itis.model.Currency;
 
 import java.sql.*;
@@ -10,130 +14,155 @@ import java.util.Optional;
 
 public class CurrencyRepositoryImpl implements CurrencyRepository {
 
-    private Connection connection;
+    private JdbcTemplate jdbcTemplate;
+
+    private RowMapper<Currency> rowMapper = ((resultSet, rowNum) -> {
+        return Currency.builder()
+                .id(resultSet.getLong("id"))
+                .name(resultSet.getString("currency_name"))
+                .description(resultSet.getString("currency_description"))
+                .createdAt(resultSet.getTimestamp("created_at"))
+                .gameId(resultSet.getLong("game_id"))
+                .build();
+    });
+
+    private RowMapper<List<Currency>> listRowMapper = ((resultSet, rowNum) -> {
+        List<Currency> currencies = new ArrayList<>();
+        while (resultSet.next()) {
+            currencies.add(Currency.builder()
+                    .id(resultSet.getLong("id"))
+                    .name(resultSet.getString("currency_name"))
+                    .description(resultSet.getString("currency_description"))
+                    .createdAt(resultSet.getTimestamp("created_at"))
+                    .gameId(resultSet.getLong("game_id"))
+                    .build());
+        }
+        return currencies;
+    });
 
     //language=sql
-    private final String INSERT_CURRENCY = "INSERT INTO currency (currency_name, currency_description, game_id) VALUES (?,?,?)";
-    private final String FIND_CURRENCIES_BY_GAME_ID = "SELECT * FROM currency WHERE game_id=?";
-    private final String FIND_ALL = "SELECT * FROM currency;";
-    private final String FIND_BY_ID = "SELECT * FROM currency WHERE id=?";
-    private final String UPDATE_CURRENCY_INFO_BY_ID = "update currency set currency_name = ?, currency_description = ? where id = ?;";
+    private final String SQL_INSERT_CURRENCY = "INSERT INTO currency (currency_name, currency_description, game_id) VALUES (?,?,?)";
+    private final String SQL_FIND_CURRENCIES_BY_GAME_ID = "SELECT * FROM currency WHERE game_id=?";
+    private final String SQL_FIND_ALL = "SELECT * FROM currency;";
+    private final String SQL_FIND_BY_ID = "SELECT * FROM currency WHERE id=?";
+    private final String SQL_UPDATE_CURRENCY_INFO_BY_ID = "update currency set currency_name = ?, currency_description = ? where id = ?;";
 
 
-    public CurrencyRepositoryImpl(Connection connection) {
-        this.connection = connection;
+    public CurrencyRepositoryImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
-    public List<Currency> findAll() {
-        ResultSet resultSet = null;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL);
-            resultSet = preparedStatement.executeQuery();
-            List<Currency> currencies = rowMapGames.rowMap(resultSet);
-            return currencies;
-        } catch (SQLException e) {
+    public <S extends Currency> S save(S entity) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        }
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement(SQL_INSERT_CURRENCY, new String[]{"id"});
+
+            statement.setString(1, entity.getName());
+            statement.setString(2, entity.getDescription());
+            statement.setLong(3, entity.getGameId());
+
+            return statement;
+        }, keyHolder);
+        entity.setId(keyHolder.getKey().longValue());
+        return entity;
+    }
+
+    @Override
+    public <S extends Currency> Iterable<S> saveAll(Iterable<S> entities) {
         return null;
     }
 
     @Override
-    public Optional<Currency> findById(Long id) {
-        ResultSet resultSet = null;
+    public Optional<Currency> findById(Long aLong) {
+        Currency currency;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID);
-            preparedStatement.setLong(1, id);
-            resultSet = preparedStatement.executeQuery();
-            return Optional.ofNullable(rowMapper.rowMap(resultSet));
-        } catch (SQLException e) {
+            currency = jdbcTemplate.queryForObject(SQL_FIND_BY_ID, rowMapper, aLong);
+        } catch (DataAccessException ex) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        return Optional.of(currency);
     }
 
     @Override
-    public Currency save(Currency currency) {
+    public boolean existsById(Long aLong) {
+        return false;
+    }
 
-        ResultSet resultSet = null;
+    @Override
+    public Iterable<Currency> findAll() {
+        Iterable<Currency> currencies;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CURRENCY, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, currency.getName());
-            preparedStatement.setString(2, currency.getDescription());
-            preparedStatement.setLong(3, currency.getGameId());
-            preparedStatement.executeUpdate();
-            resultSet = preparedStatement.getGeneratedKeys();
-
-            return rowMapper.rowMap(resultSet);
-
-        } catch (SQLException e) {
-
+            currencies = jdbcTemplate.queryForObject(SQL_FIND_ALL, listRowMapper);
+        } catch (DataAccessException ex) {
+            return new ArrayList<>();
         }
+        return currencies;
+    }
+
+    @Override
+    public Iterable<Currency> findAllById(Iterable<Long> longs) {
         return null;
     }
 
     @Override
-    public void deleteById(Long id) {
+    public long count() {
+        return 0;
+    }
+
+    @Override
+    public void deleteById(Long aLong) {
+
+    }
+
+    @Override
+    public void delete(Currency entity) {
+
+    }
+
+    @Override
+    public void deleteAllById(Iterable<? extends Long> longs) {
+
+    }
+
+    @Override
+    public void deleteAll(Iterable<? extends Currency> entities) {
+
+    }
+
+    @Override
+    public void deleteAll() {
 
     }
 
     @Override
     public List<Currency> findCurrenciesByGameId(Long gameId) {
-        ResultSet resultSet = null;
+
+        List<Currency> currencies;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(FIND_CURRENCIES_BY_GAME_ID, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setLong(1, gameId);
-            resultSet = preparedStatement.executeQuery();
-            return rowMapGames.rowMap(resultSet);
-        } catch (SQLException e) {
+            currencies = jdbcTemplate.queryForObject(SQL_FIND_CURRENCIES_BY_GAME_ID, listRowMapper, gameId);
+        } catch (DataAccessException ex) {
+            return new ArrayList<>();
         }
-        return new ArrayList<>();
+        return currencies;
     }
 
     @Override
-    public Currency updateCurrencyInfoById(Long id, String name, String description) {
-        ResultSet resultSet = null;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_CURRENCY_INFO_BY_ID, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, name);
-            preparedStatement.setString(2, description);
-            preparedStatement.setLong(3, id);
-            preparedStatement.executeUpdate();
-            resultSet = preparedStatement.getGeneratedKeys();
+    public Optional<Currency> updateCurrencyInfoById(Long id, String name, String description) {
+        Currency currency = null;
 
-            return rowMapper.rowMap(resultSet);
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        } catch (SQLException e) {
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_CURRENCY_INFO_BY_ID, new String[]{"id"});
 
-        }
-        return null;
+            statement.setString(1, name);
+            statement.setString(2, description);
+            statement.setLong(3, id);
+            return statement;
+        }, keyHolder);
+        currency.setId(keyHolder.getKey().longValue());
+        return Optional.of(currency);
     }
-
-
-    private RowMapper<Currency> rowMapper = ((resultSet) -> {
-        if (resultSet.next()) {
-            Currency currency = new Currency();
-            currency.setId(resultSet.getLong("id"));
-            currency.setName(resultSet.getString("currency_name"));
-            currency.setDescription(resultSet.getString("currency_description"));
-            currency.setCreatedAt(resultSet.getTimestamp("created_at"));
-            currency.setGameId(resultSet.getLong("game_id"));
-            return currency;
-        } else {
-            return null;
-        }
-    });
-
-    private RowMapper<List<Currency>> rowMapGames = ((resultSet) -> {
-        List<Currency> currencies = new ArrayList<>();
-        while (resultSet.next()) {
-            Currency currency = new Currency();
-            currency.setId(resultSet.getLong("id"));
-            currency.setName(resultSet.getString("currency_name"));
-            currency.setDescription(resultSet.getString("currency_description"));
-            currency.setCreatedAt(resultSet.getTimestamp("created_at"));
-            currency.setGameId(resultSet.getLong("game_id"));
-            currencies.add(currency);
-        }
-        return currencies;
-    });
 }

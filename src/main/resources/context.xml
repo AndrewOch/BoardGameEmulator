@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="properties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:application.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="url" value="${db.url}"/>
+        <property name="username" value="${db.user}"/>
+        <property name="password" value="${db.password}"/>
+        <property name="driverClassName" value="${db.driver}"/>
+    </bean>
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+    <bean id="userRepository" class="ru.kpfu.itis.repositories.UsersRepositoryImpl">
+        <constructor-arg ref="jdbcTemplate"/>
+    </bean>
+    <bean id="authRepository" class="ru.kpfu.itis.repositories.AuthRepositoryImpl">
+        <constructor-arg ref="jdbcTemplate"/>
+    </bean>
+    <bean id="cardsRepository" class="ru.kpfu.itis.repositories.CardsRepositoryImpl">
+        <constructor-arg ref="jdbcTemplate"/>
+    </bean>
+    <bean id="currencyRepository" class="ru.kpfu.itis.repositories.CurrencyRepositoryImpl">
+        <constructor-arg ref="jdbcTemplate"/>
+    </bean>
+    <bean id="decksRepository" class="ru.kpfu.itis.repositories.DecksRepositoryImpl">
+        <constructor-arg ref="jdbcTemplate"/>
+    </bean>
+    <bean id="gamesRepository" class="ru.kpfu.itis.repositories.GamesRepositoryImpl">
+        <constructor-arg ref="jdbcTemplate"/>
+    </bean>
+
+
+    <bean id="userService" class="ru.kpfu.itis.services.UsersServicesImpl">
+        <constructor-arg ref="userRepository"/>
+    </bean>
+    <bean id="gamesService" class="ru.kpfu.itis.services.GamesServiceImpl">
+        <constructor-arg ref="gamesRepository"/>
+    </bean>
+    <bean id="cookieService" class="ru.kpfu.itis.services.CookieService"/>
+
+</beans>

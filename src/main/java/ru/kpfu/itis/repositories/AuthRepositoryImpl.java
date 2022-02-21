@@ -1,83 +1,127 @@
 package ru.kpfu.itis.repositories;
 
-import ru.kpfu.itis.mapper.RowMapper;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import ru.kpfu.itis.model.Auth;
 import ru.kpfu.itis.model.User;
 
 import java.sql.*;
-import java.util.List;
 import java.util.Optional;
 
 public class AuthRepositoryImpl implements AuthRepository {
 
-    private Connection connection;
+    private JdbcTemplate jdbcTemplate;
 
+    private RowMapper<Auth> rowMapper = ((resultSet, rowNum) -> {
+        return Auth.builder()
+                .id(resultSet.getLong("auth_id"))
+                .cookieValue(resultSet.getString("cookie_value"))
+                .user(User.builder()
+                        .id(resultSet.getLong("id"))
+                        .username(resultSet.getString("username"))
+                        .email(resultSet.getString("email"))
+                        .passwordHash(resultSet.getString("password_hash"))
+                        .build())
+                .build();
+    });
+
+    //language=sql
     private final String SQL_FIND_BY_COOKIE_VALUE = "SELECT auth.id as auth_id, cookie_value,users.id as id, username,email,password_hash FROM auth INNER JOIN users ON auth.user_id=users.id WHERE auth.cookie_value=?";
+    private final String SQL_FIND_BY_ID = "SELECT auth.id as auth_id, cookie_value,users.id as id, username,email,password_hash FROM auth INNER JOIN users ON auth.user_id=users.id WHERE auth.id=?";
     private final String SQL_INSERT_AUTH = "INSERT INTO auth (user_id, cookie_value) VALUES (?, ?)";
 
-    public AuthRepositoryImpl(Connection connection) {
-        this.connection = connection;
+    public AuthRepositoryImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
-    public Auth findByCookieValue(String cookieValue) {
-        ResultSet resultSet = null;
+    public Optional<Auth> findByCookieValue(String cookieValue) {
+        Auth auth;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_BY_COOKIE_VALUE);
-            preparedStatement.setString(1, cookieValue);
-            resultSet = preparedStatement.executeQuery();
-            Auth auth = authRowMapper.rowMap(resultSet);
-            return auth;
-        } catch (Exception e) {
-            return null;
+            auth = jdbcTemplate.queryForObject(SQL_FIND_BY_COOKIE_VALUE, rowMapper, cookieValue);
+        } catch (DataAccessException ex) {
+            return Optional.empty();
         }
+        return Optional.of(auth);
     }
 
     @Override
-    public List<Auth> findAll() {
+    public <S extends Auth> S save(S entity) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement(SQL_INSERT_AUTH, new String[]{"id"});
+
+            statement.setLong(1, entity.getId());
+            statement.setString(2, entity.getCookieValue());
+
+            return statement;
+        }, keyHolder);
+        entity.setId(keyHolder.getKey().longValue());
+        return entity;
+    }
+
+    @Override
+    public <S extends Auth> Iterable<S> saveAll(Iterable<S> entities) {
         return null;
     }
 
     @Override
-    public Optional<Auth> findById(Long id) {
-        return Optional.empty();
-    }
-
-    @Override
-    public Auth save(Auth auth) {
-        ResultSet resultSet = null;
+    public Optional<Auth> findById(Long aLong) {
+        Auth auth;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT_AUTH, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setLong(1, auth.getUser().getId());
-            preparedStatement.setString(2, auth.getCookieValue());
-            resultSet = preparedStatement.executeQuery();
-        } catch (SQLException e) {
-
+            auth = jdbcTemplate.queryForObject(SQL_FIND_BY_ID, rowMapper, aLong);
+        } catch (DataAccessException ex) {
+            return Optional.empty();
         }
-        return auth;
+        return Optional.of(auth);
     }
 
     @Override
-    public void deleteById(Long id) {
+    public boolean existsById(Long aLong) {
+        return false;
+    }
+
+    @Override
+    public Iterable<Auth> findAll() {
+        return null;
+    }
+
+    @Override
+    public Iterable<Auth> findAllById(Iterable<Long> longs) {
+        return null;
+    }
+
+    @Override
+    public long count() {
+        return 0;
+    }
+
+    @Override
+    public void deleteById(Long aLong) {
 
     }
 
-    private RowMapper<Auth> authRowMapper = (resultSet) -> {
-        if (resultSet.next()) {
-            Auth auth = new Auth();
-            auth.setId(resultSet.getLong("auth_id"));
-            auth.setCookieValue(resultSet.getString("cookie_value"));
+    @Override
+    public void delete(Auth entity) {
 
-            User user = new User();
-            user.setId(resultSet.getLong("id"));
-            user.setUsername(resultSet.getString("username"));
-            user.setEmail(resultSet.getString("email"));
-            user.setPasswordHash(resultSet.getString("password_hash"));
+    }
 
-            auth.setUser(user);
-            return auth;
-        } else {
-            return null;
-        }
-    };
+    @Override
+    public void deleteAllById(Iterable<? extends Long> longs) {
+
+    }
+
+    @Override
+    public void deleteAll(Iterable<? extends Auth> entities) {
+
+    }
+
+    @Override
+    public void deleteAll() {
+
+    }
 }

@@ -1,53 +1,104 @@
 package ru.kpfu.itis.repositories;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import ru.kpfu.itis.model.User;
 
-import java.sql.*;
-import java.util.List;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.util.Optional;
 
 public class UsersRepositoryImpl implements UsersRepository {
 
-    private Connection connection;
+
+    private JdbcTemplate jdbcTemplate;
+
+    private RowMapper<User> userRowMapper = ((resultSet, rowNum) -> {
+        return User.builder()
+                .id(resultSet.getLong("id"))
+                .username(resultSet.getString("username"))
+                .email(resultSet.getString("email"))
+                .passwordHash(resultSet.getString("password_hash"))
+                .createdAt(Timestamp.valueOf(resultSet.getString("created_at")))
+                .build();
+    });
 
     //language=sql
     private final String SQL_INSERT_USER = "INSERT INTO users(username, email, password_hash) VALUES (?, ?, ?)";
     private final String SQL_FIND_USER_BY_LOGIN = "SELECT * FROM users WHERE username=?";
+    private final String SQL_FIND_USER_BY_ID = "SELECT * FROM users WHERE id=?";
 
-
-    public UsersRepositoryImpl(Connection connection) {
-        this.connection = connection;
+    public UsersRepositoryImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
-    public List<User> findAll() {
+    public Iterable<User> findAllById(Iterable<Long> longs) {
         return null;
     }
 
     @Override
-    public Optional<User> findById(Long id) {
-        return Optional.empty();
+    public long count() {
+        return 0;
     }
 
     @Override
-    public User save(User user) {
-        ResultSet resultSet = null;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT_USER, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, user.getUsername());
-            preparedStatement.setString(2, user.getEmail());
-            preparedStatement.setString(3, user.getPasswordHash());
-            //preparedStatement.setString(4, String.valueOf(user.getCreatedAt()));
+    public boolean existsById(Long aLong) {
+        return false;
+    }
 
-            resultSet = preparedStatement.executeQuery();
+    @Override
+    public Iterable<User> findAll() {
+        return null;
+    }
 
-            if (resultSet.next()) {
-                user.setId(resultSet.getLong("id"));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public <S extends User> S save(S user) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement(SQL_INSERT_USER, new String[]{"id"});
+
+            statement.setString(1, user.getUsername());
+            statement.setString(2, user.getEmail());
+            statement.setString(3, user.getPasswordHash());
+
+            return statement;
+        }, keyHolder);
+        user.setId(keyHolder.getKey().longValue());
         return user;
+    }
+
+    @Override
+    public <S extends User> Iterable<S> saveAll(Iterable<S> entities) {
+
+
+        return null;
+    }
+
+    @Override
+    public Optional<User> findById(Long aLong) {
+        User user;
+        try {
+            user = jdbcTemplate.queryForObject(SQL_FIND_USER_BY_ID, userRowMapper, aLong);
+        } catch (DataAccessException ex) {
+            return Optional.empty();
+        }
+        return Optional.of(user);
+    }
+
+    @Override
+    public Optional<User> findByLogin(String username) {
+        User user;
+        try {
+            user = jdbcTemplate.queryForObject(SQL_FIND_USER_BY_LOGIN, userRowMapper, username);
+        } catch (DataAccessException ex) {
+            return Optional.empty();
+        }
+        return Optional.of(user);
     }
 
     @Override
@@ -56,24 +107,23 @@ public class UsersRepositoryImpl implements UsersRepository {
     }
 
     @Override
-    public User findByLogin(String username) {
-        ResultSet resultSet = null;
-        User user = null;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(SQL_FIND_USER_BY_LOGIN);
-            preparedStatement.setString(1, username);
+    public void delete(User entity) {
 
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                user = new User();
-                user.setId(resultSet.getLong("id"));
-                user.setUsername(resultSet.getString("username"));
-                user.setPasswordHash(resultSet.getString("password_hash"));
-                user.setEmail(resultSet.getString("email"));
-            }
-        } catch (SQLException throwables) {
-            //
-        }
-        return user;
     }
+
+    @Override
+    public void deleteAllById(Iterable<? extends Long> longs) {
+
+    }
+
+    @Override
+    public void deleteAll(Iterable<? extends User> entities) {
+
+    }
+
+    @Override
+    public void deleteAll() {
+
+    }
+
 }

@@ -1,7 +1,15 @@
 package ru.kpfu.itis.model;
 
+import lombok.*;
+
 import java.util.ArrayList;
 
+@Getter
+@Setter
+@EqualsAndHashCode
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Deck {
 
     private Long id;
@@ -9,47 +17,4 @@ public class Deck {
     private String description;
     private ArrayList<Card> cards;
     private ArrayList<Card> waste;
-
-    public Deck(Long id, String name, String description, ArrayList<Card> cards) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.cards = cards;
-        this.waste = new ArrayList<>();
-    }
-
-    public Deck() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public ArrayList<Card> getCards() {
-        return cards;
-    }
-
-    public void setCards(ArrayList<Card> cards) {
-        this.cards = cards;
-    }
 }

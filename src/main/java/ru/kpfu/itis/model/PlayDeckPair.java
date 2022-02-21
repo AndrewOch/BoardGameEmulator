@@ -1,7 +1,15 @@
 package ru.kpfu.itis.model;
 
+import lombok.*;
+
 import java.util.Stack;
 
+@Getter
+@Setter
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PlayDeckPair {
 
     private Long deckId;
@@ -12,32 +20,5 @@ public class PlayDeckPair {
         this.deckId = deckId;
         this.deck = deck;
         waste = new Stack<>();
-    }
-
-    public PlayDeckPair() {
-    }
-
-    public Long getDeckId() {
-        return deckId;
-    }
-
-    public void setDeckId(Long deckId) {
-        this.deckId = deckId;
-    }
-
-    public Stack<Card> getDeck() {
-        return deck;
-    }
-
-    public void setDeck(Stack<Card> deck) {
-        this.deck = deck;
-    }
-
-    public Stack<Card> getWaste() {
-        return waste;
-    }
-
-    public void setWaste(Stack<Card> waste) {
-        this.waste = waste;
     }
 }

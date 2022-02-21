@@ -1,6 +1,10 @@
 package ru.kpfu.itis.repositories;
 
-import ru.kpfu.itis.mapper.RowMapper;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import ru.kpfu.itis.model.Deck;
 
 import java.sql.*;
@@ -10,130 +14,166 @@ import java.util.Optional;
 
 public class DecksRepositoryImpl implements DecksRepository {
 
-    private Connection connection;
+    private JdbcTemplate jdbcTemplate;
+
+    private RowMapper<Deck> rowMapper = ((resultSet, rowNum) -> {
+        return Deck.builder()
+                .id(resultSet.getLong("id"))
+                .name(resultSet.getString("deck_name"))
+                .description(resultSet.getString("deck_description"))
+                .build();
+    });
+
+    private RowMapper<List<Deck>> listRowMapper = ((resultSet, rowNum) -> {
+        List<Deck> decks = new ArrayList<>();
+        while (resultSet.next()) {
+            decks.add(Deck.builder()
+                    .id(resultSet.getLong("id"))
+                    .name(resultSet.getString("deck_name"))
+                    .description(resultSet.getString("deck_description"))
+                    .build());
+        }
+        return decks;
+    });
 
     //language=sql
-    private final String INSERT_DECK = "INSERT INTO deck (deck_name, deck_description) VALUES (?,?)";
-    private final String LINK_DECK_TO_GAME = "INSERT INTO game_decks (game_id, deck_id) VALUES (?,?)";
-    private final String FIND_DECKS_BY_GAME_ID = "SELECT deck.id, deck.deck_name, deck.deck_description FROM deck inner join game_decks gd on deck.id = gd.deck_id WHERE game_id=?";
-    private final String FIND_ALL = "SELECT * FROM deck;";
-    private final String FIND_BY_ID = "SELECT * FROM deck WHERE id=?";
-    private final String UPDATE_DECK_INFO_BY_ID = "update deck set deck_name = ?, deck_description = ? where id = ?;";
+    private final String SQL_INSERT_DECK = "INSERT INTO deck (deck_name, deck_description) VALUES (?,?)";
+    private final String SQL_LINK_DECK_TO_GAME = "INSERT INTO game_decks (game_id, deck_id) VALUES (?,?)";
+    private final String SQL_FIND_DECKS_BY_GAME_ID = "SELECT deck.id, deck.deck_name, deck.deck_description FROM deck inner join game_decks gd on deck.id = gd.deck_id WHERE game_id=?";
+    private final String SQL_FIND_ALL = "SELECT * FROM deck;";
+    private final String SQL_FIND_BY_ID = "SELECT * FROM deck WHERE id=?";
+    private final String SQL_UPDATE_DECK_INFO_BY_ID = "update deck set deck_name = ?, deck_description = ? where id = ?;";
 
 
-    public DecksRepositoryImpl(Connection connection) {
-        this.connection = connection;
+    public DecksRepositoryImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
+    @Override
+    public <S extends Deck> S save(S entity) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement(SQL_INSERT_DECK, new String[]{"id"});
+
+            statement.setString(1, entity.getName());
+            statement.setString(2, entity.getDescription());
+
+            return statement;
+        }, keyHolder);
+        entity.setId(keyHolder.getKey().longValue());
+        return entity;
+    }
 
     @Override
-    public List<Deck> findAll() {
+    public <S extends Deck> Iterable<S> saveAll(Iterable<S> entities) {
         return null;
     }
 
     @Override
-    public Optional<Deck> findById(Long id) {
-        ResultSet resultSet = null;
+    public Optional<Deck> findById(Long aLong) {
+        Deck deck;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(FIND_BY_ID);
-            preparedStatement.setLong(1, id);
-            resultSet = preparedStatement.executeQuery();
-            return Optional.ofNullable(rowMapper.rowMap(resultSet));
-        } catch (SQLException e) {
+            deck = jdbcTemplate.queryForObject(SQL_FIND_BY_ID, rowMapper, aLong);
+        } catch (DataAccessException ex) {
+            return Optional.empty();
         }
-        return Optional.empty();
-    }
-
-    @Override
-    public Deck save(Deck deck) {
-
-        ResultSet resultSet = null;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(INSERT_DECK, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, deck.getName());
-            preparedStatement.setString(2, deck.getDescription());
-            preparedStatement.executeUpdate();
-            resultSet = preparedStatement.getGeneratedKeys();
-
-            return rowMapper.rowMap(resultSet);
-
-        } catch (SQLException e) {
-
-        }
-        return null;
-    }
-
-    @Override
-    public void deleteById(Long id) {
-
+        return Optional.of(deck);
     }
 
     @Override
     public List<Deck> findDecksByGameId(Long gameId) {
 
-        ResultSet resultSet = null;
+        List<Deck> decks;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(FIND_DECKS_BY_GAME_ID);
-            preparedStatement.setLong(1, gameId);
-            resultSet = preparedStatement.executeQuery();
-            return rowMapGames.rowMap(resultSet);
-        } catch (SQLException e) {
+            decks = jdbcTemplate.queryForObject(SQL_FIND_DECKS_BY_GAME_ID, listRowMapper);
+        } catch (DataAccessException ex) {
+            return new ArrayList<>();
         }
-        return new ArrayList<>();
+        return decks;
+    }
+
+
+    @Override
+    public boolean existsById(Long aLong) {
+        return false;
     }
 
     @Override
-    public Deck updateDeckInfoById(Long id, String name, String description) {
-        ResultSet resultSet = null;
+    public Iterable<Deck> findAll() {
+        Iterable<Deck> decks;
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_DECK_INFO_BY_ID, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.setString(1, name);
-            preparedStatement.setString(2, description);
-            preparedStatement.setLong(3, id);
-            preparedStatement.executeUpdate();
-            resultSet = preparedStatement.getGeneratedKeys();
-
-            return rowMapper.rowMap(resultSet);
-
-        } catch (SQLException e) {
-
+            decks = jdbcTemplate.queryForObject(SQL_FIND_ALL, listRowMapper);
+        } catch (DataAccessException ex) {
+            return new ArrayList<>();
         }
+        return decks;
+    }
+
+    @Override
+    public Iterable<Deck> findAllById(Iterable<Long> longs) {
         return null;
     }
 
     @Override
-    public void linkDeckToGame(Long deckId, Long gameId) {
-        ResultSet resultSet = null;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(LINK_DECK_TO_GAME);
-            preparedStatement.setLong(1, gameId);
-            preparedStatement.setLong(2, deckId);
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-        }
+    public long count() {
+        return 0;
     }
 
-    private RowMapper<Deck> rowMapper = ((resultSet) -> {
-        if (resultSet.next()) {
-            Deck deck = new Deck();
-            deck.setId(resultSet.getLong("id"));
-            deck.setName(resultSet.getString("deck_name"));
-            deck.setDescription(resultSet.getString("deck_description"));
-            return deck;
-        } else {
-            return null;
-        }
-    });
+    @Override
+    public void deleteById(Long aLong) {
 
-    private RowMapper<List<Deck>> rowMapGames = ((resultSet) -> {
-        List<Deck> decks = new ArrayList<>();
-        while (resultSet.next()) {
-            Deck deck = new Deck();
-            deck.setId(resultSet.getLong("id"));
-            deck.setName(resultSet.getString("deck_name"));
-            deck.setDescription(resultSet.getString("deck_description"));
-            decks.add(deck);
-        }
-        return decks;
-    });
+    }
+
+    @Override
+    public void delete(Deck entity) {
+
+    }
+
+    @Override
+    public void deleteAllById(Iterable<? extends Long> longs) {
+
+    }
+
+    @Override
+    public void deleteAll(Iterable<? extends Deck> entities) {
+
+    }
+
+    @Override
+    public void deleteAll() {
+
+    }
+
+    @Override
+    public Optional<Deck> updateDeckInfoById(Long id, String name, String description) {
+        Deck deck = null;
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_DECK_INFO_BY_ID, new String[]{"id"});
+
+            statement.setString(1, name);
+            statement.setString(2, description);
+            statement.setLong(3, id);
+            return statement;
+        }, keyHolder);
+        deck.setId(keyHolder.getKey().longValue());
+        return Optional.of(deck);
+    }
+
+    @Override
+    public void linkDeckToGame(Long deckId, Long gameId) {
+        //TODO Уточнить метод
+//        ResultSet resultSet = null;
+//        try {
+//            PreparedStatement preparedStatement = connection.prepareStatement(SQL_LINK_DECK_TO_GAME);
+//            preparedStatement.setLong(1, gameId);
+//            preparedStatement.setLong(2, deckId);
+//            preparedStatement.executeUpdate();
+//        } catch (SQLException e) {
+//        }
+    }
+
 }

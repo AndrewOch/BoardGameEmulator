@@ -106,7 +106,7 @@ public class GamesServiceImpl implements GamesService {
 
     @Override
     public List<Game> findAllGames() {
-        return gamesRepository.findAll();
+        return (List<Game>) gamesRepository.findAll();
     }
 
     @Override
@@ -121,7 +121,7 @@ public class GamesServiceImpl implements GamesService {
 
     @Override
     public List<Currency> findAllCurrencies() {
-        return currencyRepository.findAll();
+        return (List<Currency>) currencyRepository.findAll();
     }
 
     @Override
@@ -191,7 +191,7 @@ public class GamesServiceImpl implements GamesService {
 
     @Override
     public List<Game> findGamesByUserId(Long userId) {
-        List<Game> games = gamesRepository.findGamesByUserId(userId);
+        List<Game> games = (List<Game>) gamesRepository.findGamesByUserId(userId);
         for (Game game : games) {
             game.setDecks((ArrayList<Deck>) decksRepository.findDecksByGameId(game.getId()));
             game.setCurrencies((ArrayList<Currency>) currencyRepository.findCurrenciesByGameId(game.getId()));
@@ -201,22 +201,22 @@ public class GamesServiceImpl implements GamesService {
 
     @Override
     public Game updateGameInfoById(Long id, String name, String description) {
-        return gamesRepository.updateGameInfoById(id, name, description);
+        return gamesRepository.updateGameInfoById(id, name, description).get();
     }
 
     @Override
     public Currency updateCurrencyInfoById(Long id, String name, String description) {
-        return currencyRepository.updateCurrencyInfoById(id, name, description);
+        return currencyRepository.updateCurrencyInfoById(id, name, description).get();
     }
 
     @Override
     public Deck updateDeckInfoById(Long id, String name, String description) {
-        return decksRepository.updateDeckInfoById(id, name, description);
+        return decksRepository.updateDeckInfoById(id, name, description).get();
     }
 
     @Override
     public Card updateCardInfoById(Long id, String name, String description, Long currencyId, Integer value) {
-        return cardsRepository.updateCardInfoById(id, name, description, currencyId, value);
+        return cardsRepository.updateCardInfoById(id, name, description, currencyId, value).get();
     }
 
 }
