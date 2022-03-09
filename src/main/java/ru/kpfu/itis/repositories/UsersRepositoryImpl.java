@@ -1,19 +1,23 @@
 package ru.kpfu.itis.repositories;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import ru.kpfu.itis.model.User;
+import org.springframework.stereotype.Component;
+import ru.kpfu.itis.models.entities.User;
+import ru.kpfu.itis.repositories.interfaces.UsersRepository;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Optional;
 
+@Component("usersRepositoryJdbcTemplateImpl")
 public class UsersRepositoryImpl implements UsersRepository {
 
-
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     private RowMapper<User> userRowMapper = ((resultSet, rowNum) -> {
@@ -22,7 +26,7 @@ public class UsersRepositoryImpl implements UsersRepository {
                 .username(resultSet.getString("username"))
                 .email(resultSet.getString("email"))
                 .passwordHash(resultSet.getString("password_hash"))
-                .createdAt(Timestamp.valueOf(resultSet.getString("created_at")))
+//                .createdAt(Timestamp.valueOf(resultSet.getString("created_at")))
                 .build();
     });
 
@@ -30,10 +34,6 @@ public class UsersRepositoryImpl implements UsersRepository {
     private final String SQL_INSERT_USER = "INSERT INTO users(username, email, password_hash) VALUES (?, ?, ?)";
     private final String SQL_FIND_USER_BY_LOGIN = "SELECT * FROM users WHERE username=?";
     private final String SQL_FIND_USER_BY_ID = "SELECT * FROM users WHERE id=?";
-
-    public UsersRepositoryImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public Iterable<User> findAllById(Iterable<Long> longs) {

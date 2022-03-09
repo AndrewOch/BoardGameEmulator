@@ -1,20 +1,24 @@
 package ru.kpfu.itis.repositories;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import ru.kpfu.itis.model.Deck;
-import ru.kpfu.itis.model.Game;
+import org.springframework.stereotype.Component;
+import ru.kpfu.itis.models.entities.Game;
+import ru.kpfu.itis.repositories.interfaces.GamesRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Component("gamesRepositoryJdbcTemplateImpl")
 public class GamesRepositoryImpl implements GamesRepository {
 
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     private RowMapper<Game> rowMapper = ((resultSet, rowNum) -> {
@@ -25,30 +29,13 @@ public class GamesRepositoryImpl implements GamesRepository {
                 .build();
     });
 
-    private RowMapper<List<Game>> listRowMapper = ((resultSet, rowNum) -> {
-        List<Game> games = new ArrayList<>();
-        while (resultSet.next()) {
-            games.add(Game.builder()
-                    .id(resultSet.getLong("id"))
-                    .name(resultSet.getString("game_name"))
-                    .description(resultSet.getString("game_description"))
-                    .build());
-        }
-        return games;
-    });
-
     //language=sql
     private final String SQL_INSERT_GAME = "INSERT INTO game(game_name, game_description) VALUES (?, ?)";
     private final String SQL_FIND_GAMES_BY_USER_ID = "SELECT g.id, g.game_name, g.game_description FROM game g INNER JOIN user_games u_g ON g.id = u_g.game_id INNER JOIN users ON u_g.user_id = users.id WHERE user_id=?;";
     private final String SQL_FIND_ALL = "SELECT * FROM game;";
-    private final String SQL_LINK_GAME_TO_USER = "INSERT INTO user_games (user_id, game_id) VALUES (?,?)";
+    private final String SQL_LINK_GAME_TO_USER = "INSERT INTO user_games (game_id, user_id) VALUES (?,?)";
     private final String SQL_FIND_GAME_BY_ID = "SELECT * FROM game WHERE id=?;";
     private final String SQL_UPDATE_GAME_INFO_BY_ID = "update game set game_name = ?, game_description = ? where id = ?;";
-
-
-    public GamesRepositoryImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public <S extends Game> S save(S entity) {
@@ -75,7 +62,7 @@ public class GamesRepositoryImpl implements GamesRepository {
     public Optional<Game> findById(Long aLong) {
         Game game;
         try {
-            game = jdbcTemplate.queryForObject(SQL_FIND_ALL, rowMapper, aLong);
+            game = jdbcTemplate.queryForObject(SQL_FIND_GAME_BY_ID, rowMapper, aLong);
         } catch (DataAccessException ex) {
             return Optional.empty();
         }
@@ -92,7 +79,7 @@ public class GamesRepositoryImpl implements GamesRepository {
     public Iterable<Game> findAll() {
         Iterable<Game> games;
         try {
-            games = jdbcTemplate.queryForObject(SQL_FIND_ALL, listRowMapper);
+            games = jdbcTemplate.query(SQL_FIND_ALL, rowMapper);
         } catch (DataAccessException ex) {
             return new ArrayList<>();
         }
@@ -103,8 +90,9 @@ public class GamesRepositoryImpl implements GamesRepository {
     public Iterable<Game> findGamesByUserId(Long userId) {
         Iterable<Game> games;
         try {
-            games = jdbcTemplate.queryForObject(SQL_FIND_ALL, listRowMapper, userId);
+            games = jdbcTemplate.query(SQL_FIND_GAMES_BY_USER_ID, rowMapper, userId);
         } catch (DataAccessException ex) {
+            System.out.println(ex);
             return new ArrayList<>();
         }
         return games;
@@ -148,16 +136,16 @@ public class GamesRepositoryImpl implements GamesRepository {
 
     @Override
     public void linkGameToUser(Long gameId, Long userId) {
-        //TODO Уточнить методы
-//        ResultSet resultSet = null;
-//        try {
-//            PreparedStatement preparedStatement = connection.prepareStatement(LINK_GAME_TO_USER);
-//            preparedStatement.setLong(1, userId);
-//            preparedStatement.setLong(2, gameId);
-//            resultSet = preparedStatement.executeQuery();
-//        } catch (SQLException e) {
-//
-//        }
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement(SQL_LINK_GAME_TO_USER, new String[]{"id"});
+
+            statement.setLong(1, gameId);
+            statement.setLong(2, userId);
+
+            return statement;
+        }, keyHolder);
     }
 
     @Override

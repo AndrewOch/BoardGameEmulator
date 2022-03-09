@@ -1,39 +1,37 @@
 package ru.kpfu.itis.services;
 
-import ru.kpfu.itis.form.CardForm;
-import ru.kpfu.itis.form.CurrencyForm;
-import ru.kpfu.itis.form.DeckForm;
-import ru.kpfu.itis.form.GameForm;
-import ru.kpfu.itis.model.Card;
-import ru.kpfu.itis.model.Currency;
-import ru.kpfu.itis.model.Deck;
-import ru.kpfu.itis.model.Game;
-import ru.kpfu.itis.repositories.CardsRepository;
-import ru.kpfu.itis.repositories.CurrencyRepository;
-import ru.kpfu.itis.repositories.DecksRepository;
-import ru.kpfu.itis.repositories.GamesRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import ru.kpfu.itis.models.form.CardForm;
+import ru.kpfu.itis.models.form.CurrencyForm;
+import ru.kpfu.itis.models.form.DeckForm;
+import ru.kpfu.itis.models.form.GameForm;
+import ru.kpfu.itis.models.entities.Card;
+import ru.kpfu.itis.models.entities.Currency;
+import ru.kpfu.itis.models.entities.Deck;
+import ru.kpfu.itis.models.entities.Game;
+import ru.kpfu.itis.repositories.interfaces.CardsRepository;
+import ru.kpfu.itis.repositories.interfaces.CurrencyRepository;
+import ru.kpfu.itis.repositories.interfaces.DecksRepository;
+import ru.kpfu.itis.repositories.interfaces.GamesRepository;
+import ru.kpfu.itis.services.interfaces.GamesService;
+import ru.kpfu.itis.services.interfaces.UsersService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Service("gamesService")
 public class GamesServiceImpl implements GamesService {
 
+    @Autowired
     private GamesRepository gamesRepository;
+    @Autowired
     private DecksRepository decksRepository;
+    @Autowired
     private CardsRepository cardsRepository;
+    @Autowired
     private CurrencyRepository currencyRepository;
-
-    public GamesServiceImpl(GamesRepository gamesRepository) {
-        this.gamesRepository = gamesRepository;
-    }
-
-    public GamesServiceImpl(GamesRepository gamesRepository, DecksRepository decksRepository, CardsRepository cardsRepository, CurrencyRepository currencyRepository) {
-        this.gamesRepository = gamesRepository;
-        this.decksRepository = decksRepository;
-        this.cardsRepository = cardsRepository;
-        this.currencyRepository = currencyRepository;
-    }
 
     @Override
     public Game addGame(GameForm gameForm) {
@@ -41,7 +39,8 @@ public class GamesServiceImpl implements GamesService {
         game.setName(gameForm.getName());
         game.setDescription(gameForm.getDescription());
 
-        return gamesRepository.save(game);
+        game = gamesRepository.save(game);
+        return game;
     }
 
     @Override

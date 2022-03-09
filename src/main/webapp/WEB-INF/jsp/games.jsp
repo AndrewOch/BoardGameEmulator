@@ -73,12 +73,12 @@
             <h2>Создайте новую игру!</h2>
             <form action="${pageContext.request.contextPath}/games" method="post">
                 <p>
-                    <label for="game-name"> <input id="game-name" type="text" name="game-name"
+                    <label for="game_name"> <input id="game_name" type="text" name="game_name"
                                                    placeholder="Название"
                                                    style="font-family: Trattatello, serif;"></label>
                 </p>
                 <p>
-                    <label for="game-description"> <input id="game-description" type="text" name="game-description"
+                    <label for="game_description"> <input id="game_description" type="text" name="game_description"
                                                           placeholder="Описание"
                                                           style="font-family: Trattatello, serif; height: 40%"></label>
                 </p>

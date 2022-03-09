@@ -1,18 +1,23 @@
 package ru.kpfu.itis.repositories;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import ru.kpfu.itis.model.Auth;
-import ru.kpfu.itis.model.User;
+import org.springframework.stereotype.Component;
+import ru.kpfu.itis.models.entities.Auth;
+import ru.kpfu.itis.models.entities.User;
+import ru.kpfu.itis.repositories.interfaces.AuthRepository;
 
 import java.sql.*;
 import java.util.Optional;
 
+@Component("authRepositoryJdbcTemplateImpl")
 public class AuthRepositoryImpl implements AuthRepository {
 
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     private RowMapper<Auth> rowMapper = ((resultSet, rowNum) -> {
@@ -33,18 +38,17 @@ public class AuthRepositoryImpl implements AuthRepository {
     private final String SQL_FIND_BY_ID = "SELECT auth.id as auth_id, cookie_value,users.id as id, username,email,password_hash FROM auth INNER JOIN users ON auth.user_id=users.id WHERE auth.id=?";
     private final String SQL_INSERT_AUTH = "INSERT INTO auth (user_id, cookie_value) VALUES (?, ?)";
 
-    public AuthRepositoryImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
     @Override
     public Optional<Auth> findByCookieValue(String cookieValue) {
         Auth auth;
         try {
             auth = jdbcTemplate.queryForObject(SQL_FIND_BY_COOKIE_VALUE, rowMapper, cookieValue);
         } catch (DataAccessException ex) {
+            System.out.println(ex);
             return Optional.empty();
         }
+        System.out.println(auth);
+        assert auth != null;
         return Optional.of(auth);
     }
 
@@ -55,7 +59,7 @@ public class AuthRepositoryImpl implements AuthRepository {
         jdbcTemplate.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(SQL_INSERT_AUTH, new String[]{"id"});
 
-            statement.setLong(1, entity.getId());
+            statement.setLong(1, entity.getUser().getId());
             statement.setString(2, entity.getCookieValue());
 
             return statement;

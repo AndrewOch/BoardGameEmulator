@@ -1,19 +1,24 @@
 package ru.kpfu.itis.repositories;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import ru.kpfu.itis.model.Card;
+import org.springframework.stereotype.Component;
+import ru.kpfu.itis.models.entities.Card;
+import ru.kpfu.itis.repositories.interfaces.CardsRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Component("cardsRepositoryJdbcTemplateImpl")
 public class CardsRepositoryImpl implements CardsRepository {
 
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     private RowMapper<Card> rowMapper = ((resultSet, rowNum) -> {
@@ -27,41 +32,21 @@ public class CardsRepositoryImpl implements CardsRepository {
                 .build();
     });
 
-    private RowMapper<List<Card>> listRowMapper = ((resultSet, rowNum) -> {
-        List<Card> cards = new ArrayList<>();
-        while (resultSet.next()) {
-            cards.add(Card.builder()
-                    .id(resultSet.getLong("id"))
-                    .currencyId(resultSet.getLong("currency_id"))
-                    .deckId(resultSet.getLong("deck_id"))
-                    .name(resultSet.getString("title"))
-                    .description(resultSet.getString("description"))
-                    .value(resultSet.getInt("value"))
-                    .build());
-        }
-        return cards;
-    });
-
-
     //language=sql
     private final String SQL_INSERT_CARD = "INSERT INTO card (title, description, currency_id, \"value\", deck_id) VALUES (?,?,?,?,?)";
     private final String SQL_FIND_CARDS_BY_DECK_ID = "SELECT * FROM card WHERE deck_id=?";
     private final String SQL_FIND_ALL = "SELECT * FROM card;";
     private final String SQL_DELETE_DUPLICATES = "delete from card where ctid in(select ctid from card where uniqueness_token = ? limit ?)";
-    private final String SQL_GET_DUPLICATES_COUNT = "SELECT count(*) FROM card WHERE uniqueness_token=?";
+    private final String SQL_GET_DUPLICATES_COUNT = "SELECT count(*) as card_count FROM card WHERE uniqueness_token=?";
     private final String SQL_FIND_BY_ID = "SELECT * from card where id=?";
     private final String SQL_UPDATE_CARD_INFO_BY_ID = "update card set title = ?, description = ?, currency_id = ?, \"value\" = ? where id = ?";
-
-    public CardsRepositoryImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public List<Card> findCardsByDeckId(Long deckId) {
 
         List<Card> cards;
         try {
-            cards = jdbcTemplate.queryForObject(SQL_FIND_CARDS_BY_DECK_ID, listRowMapper, deckId);
+            cards = jdbcTemplate.query(SQL_FIND_CARDS_BY_DECK_ID, rowMapper, deckId);
         } catch (DataAccessException ex) {
             return new ArrayList<>();
         }
@@ -71,41 +56,27 @@ public class CardsRepositoryImpl implements CardsRepository {
     @Override
     public void deleteDuplicates(Integer uniquenessToken, Integer count) {
 
-        //TODO Уточнить метод
-//        ResultSet resultSet = null;
-//        try {
-//            PreparedStatement preparedStatement = connection.prepareStatement(SQL_DELETE_DUPLICATES);
-//            preparedStatement.setInt(1, uniquenessToken);
-//            preparedStatement.setInt(2, count);
-//            preparedStatement.executeQuery();
-//        } catch (SQLException e) {
-//        }
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_CARD_INFO_BY_ID, new String[]{"id"});
+
+            statement.setInt(1, uniquenessToken);
+            statement.setInt(2, count);
+
+            return statement;
+        }, keyHolder);
     }
 
     @Override
     public Integer getDuplicatesCount(Integer uniquenessToken) {
-
-        //TODO Уточнить метод
-//        ResultSet resultSet = null;
-//        try {
-//            PreparedStatement preparedStatement = connection.prepareStatement(SQL_GET_DUPLICATES_COUNT);
-//            preparedStatement.setInt(1, uniquenessToken);
-//            return preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//        }
-//        return null;
-
-
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-
-//        Integer count = 0;
-//        try {
-//            count = jdbcTemplate.queryForObject(SQL_GET_DUPLICATES_COUNT, rowMapper, uniquenessToken);
-//        } catch (DataAccessException ex) {
-//            return 0;
-//        }
-//        return count;
-        return 0;
+        Integer count;
+        try {
+            count = jdbcTemplate.queryForObject(SQL_GET_DUPLICATES_COUNT, ((resultSet, rowNum) -> resultSet.getInt("card_count")), uniquenessToken);
+        } catch (DataAccessException ex) {
+            return 0;
+        }
+        return count;
     }
 
     @Override
@@ -174,7 +145,7 @@ public class CardsRepositoryImpl implements CardsRepository {
     public Iterable<Card> findAll() {
         Iterable<Card> cards;
         try {
-            cards = jdbcTemplate.queryForObject(SQL_FIND_BY_ID, listRowMapper);
+            cards = jdbcTemplate.query(SQL_FIND_BY_ID, rowMapper);
         } catch (DataAccessException ex) {
             return new ArrayList<>();
         }

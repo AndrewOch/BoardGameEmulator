@@ -45,7 +45,7 @@
 
     <div class="container-item" style="margin: 1% auto auto; width: 70%; height: 55%">
         <form action="${pageContext.request.contextPath}/creator" method="get">
-            <select id="choose-game" name="choose-game" style="margin: 1% auto auto">
+            <select id="choose_game" name="choose_game" style="margin: 1% auto auto">
                 <option disabled selected value="none">Выберите</option>
                 <c:forEach var="game" items="${games}">
                     <option value="${game.id}"><c:out value="${game.name}"/></option>
@@ -53,12 +53,12 @@
             </select>
 
             <p>
-                <label for="game-name"> <input id="game-name" type="text" name="game-name"
+                <label for="game_name"> <input id="game_name" type="text" name="game_name"
                                                placeholder="Название"
                                                style="font-family: Trattatello, serif; width: 40%"></label>
             </p>
             <p>
-                <label for="game-description"> <textarea id="game-description" name="game-description"
+                <label for="game_description"> <textarea id="game_description" name="game_description"
                                                          placeholder="Описание"
                                                          style="font-family: Trattatello, serif; height: 55%; width: 80%"></textarea></label>
             </p>
@@ -75,17 +75,17 @@
         <form action="${pageContext.request.contextPath}/creator" method="get" style="height: 80%">
 
             <h2>Валюты</h2>
-            <select id="choose-currency" name="choose-currency" style="width: 80%;">
+            <select id="choose_currency" name="choose_currency" style="width: 80%;">
                 <option value="create" selected>-Создать</option>
             </select>
             <p>
-                <label for="currency-name"> <input id="currency-name" type="text" name="currency-name"
+                <label for="currency_name"> <input id="currency_name" type="text" name="currency_name"
                                                    placeholder="Название"
                                                    style="font-family: Trattatello, serif;"></label>
             </p>
             <p>
-                <label for="currency-description"> <textarea id="currency-description" type="text"
-                                                             name="currency-description"
+                <label for="currency_description"> <textarea id="currency_description" type="text"
+                                                             name="currency_description"
                                                              placeholder="Описание"
                                                              style="font-family: Trattatello, serif; height: 60%; width: 80%"></textarea></label>
             </p>
@@ -97,16 +97,16 @@
     <div class="container-item">
         <form action="${pageContext.request.contextPath}/creator" method="get" style="height: 80%;">
             <h2>Колоды</h2>
-            <select id="choose-deck" name="choose-deck" style="width: 80%;">
+            <select id="choose_deck" name="choose_deck" style="width: 80%;">
                 <option value="create" selected>-Создать</option>
             </select>
             <p>
-                <input id="deck-name" type="text" name="deck-name"
+                <input id="deck_name" type="text" name="deck_name"
                        placeholder="Название"
                        style="font-family: Trattatello, serif;"></label>
             </p>
             <p>
-               <textarea id="deck-description" type="text" name="deck-description"
+               <textarea id="deck_description" type="text" name="deck_description"
                          placeholder="Описание"
                          style="font-family: Trattatello, serif; height: 60%; width: 80%"></textarea></label>
             </p>
@@ -119,30 +119,30 @@
 
         <form action="${pageContext.request.contextPath}/creator" method="get" style="height: 70%;">
             <h2>Карты</h2>
-            <select id="card-deck" name="card-deck" style="width: 80%;">
+            <select id="card_deck" name="card_deck" style="width: 80%;">
                 <option value="none" selected disabled>Выбрать колоду</option>
             </select>
             <p>
-                <select id="choose-card" name="choose-card" style="width: 80%;">
+                <select id="choose_card" name="choose_card" style="width: 80%;">
                     <option value="create" selected>-Создать</option>
                 </select></p>
             <p>
-                <input id="card-name" type="text" name="card-name"
+                <input id="card_name" type="text" name="card_name"
                        placeholder="Название"
                        style="font-family: Trattatello, serif;"></label>
             </p>
             <p>
-                <textarea id="card-description" type="text" name="card-description"
+                <textarea id="card_description" type="text" name="card_description"
                           placeholder="Описание"
                           style="font-family: Trattatello, serif; height: 25%; width: 80%"></textarea></label>
             </p>
             <p style="width: 80%; margin: auto">
-                <select id="currency-of-a-card" name="currency-of-a-card"
+                <select id="currency_of_a_card" name="currency_of_a_card"
                         style="width: 80%; margin: auto">
                     <option value="none" selected>Нет валюты</option>
                 </select>
-                <label for="card-value"> <input id="card-value" class="dice" min="-100" max="100" type="number"
-                                                name="card-value"
+                <label for="card_value"> <input id="card_value" class="dice" min="-100" max="100" type="number"
+                                                name="card_value"
                                                 placeholder="0" style="height: 45px; margin: auto"></label>
             </p>
             <br><br>

@@ -1,34 +1,29 @@
 package ru.kpfu.itis.services;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.kpfu.itis.form.LoginForm;
-import ru.kpfu.itis.form.UserForm;
-import ru.kpfu.itis.model.Auth;
-import ru.kpfu.itis.model.User;
-import ru.kpfu.itis.repositories.AuthRepository;
-import ru.kpfu.itis.repositories.UsersRepository;
+import org.springframework.stereotype.Service;
+import ru.kpfu.itis.dto.AuthDto;
+import ru.kpfu.itis.models.form.UserForm;
+import ru.kpfu.itis.models.entities.Auth;
+import ru.kpfu.itis.models.entities.User;
+import ru.kpfu.itis.repositories.interfaces.AuthRepository;
+import ru.kpfu.itis.repositories.interfaces.UsersRepository;
+import ru.kpfu.itis.services.interfaces.UsersService;
 
 import javax.servlet.http.Cookie;
 import java.util.Optional;
 import java.util.UUID;
 
+@Service
 public class UsersServicesImpl implements UsersService {
 
+    @Autowired
     private UsersRepository usersRepository;
+    @Autowired
     private AuthRepository authRepository;
+    @Autowired
     private PasswordEncoder passwordEncoder;
-
-    public UsersServicesImpl(UsersRepository usersRepository) {
-        this.usersRepository = usersRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
-    }
-
-    public UsersServicesImpl(UsersRepository usersRepository, AuthRepository authRepository) {
-        this.usersRepository = usersRepository;
-        this.authRepository = authRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
-    }
 
     @Override
     public User register(UserForm userForm) {
@@ -43,13 +38,15 @@ public class UsersServicesImpl implements UsersService {
     }
 
     @Override
-    public Cookie signIn(LoginForm loginForm) {
+    public Cookie signIn(AuthDto authDto) {
 
-        User user = usersRepository.findByLogin(loginForm.getLogin()).get();
+        User user = null;
+        Optional<User> optional = usersRepository.findByLogin(authDto.getLogin());
+        if (optional.isPresent()) user = optional.get();
 
         System.out.println(user);
         if (user != null) {
-            if (passwordEncoder.matches(loginForm.getPassword(), user.getPasswordHash())) {
+            if (passwordEncoder.matches(authDto.getPassword(), user.getPasswordHash())) {
                 System.out.println("Вход выполнен!");
                 String cookieValue = UUID.randomUUID().toString();
 
@@ -71,7 +68,12 @@ public class UsersServicesImpl implements UsersService {
 
     @Override
     public User findUserByCookieValue(String cookieValue) {
-        Auth auth = authRepository.findByCookieValue(cookieValue).get();
+        Optional<Auth> optional = authRepository.findByCookieValue(cookieValue);
+
+        Auth auth = null;
+        if (optional.isPresent()) {
+            auth = optional.get();
+        }
         if (auth != null) {
             return auth.getUser();
         } else {

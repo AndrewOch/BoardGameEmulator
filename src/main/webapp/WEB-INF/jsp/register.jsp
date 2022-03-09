@@ -48,7 +48,7 @@
     </div>
     <form action="${pageContext.request.contextPath}/register" method="post">
         <p class="text">Логин</p>
-        <p><label for="login"> <input class="register-input" id="login" type="text" name="login"
+        <p><label for="username"> <input class="register-input" id="username" type="text" name="username"
                                       placeholder="username"></label>
         </p>
         <p class="text">Электронная почта</p>

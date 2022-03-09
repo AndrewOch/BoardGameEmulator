@@ -6,9 +6,9 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <html>
 <head>
-
     <style>
         <%@include file="/WEB-INF/css/styles.css"%>
     </style>
@@ -40,7 +40,7 @@
         <form class="menu-option" method="get" action="${pageContext.request.contextPath}/auth">
             <button type="submit" class="selected">Вход</button>
         </form>
-        <form class="menu-option" method="get" action="${pageContext.request.contextPath}/auth">
+        <form class="menu-option" method="get" action="${pageContext.request.contextPath}/register">
             <button type="submit" name="register-button">Регистрация</button>
         </form>
     </div>

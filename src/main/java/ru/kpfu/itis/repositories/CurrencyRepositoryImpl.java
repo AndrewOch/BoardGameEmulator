@@ -1,19 +1,24 @@
 package ru.kpfu.itis.repositories;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import ru.kpfu.itis.model.Currency;
+import org.springframework.stereotype.Component;
+import ru.kpfu.itis.models.entities.Currency;
+import ru.kpfu.itis.repositories.interfaces.CurrencyRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Component("currencyRepositoryJdbcTemplateImpl")
 public class CurrencyRepositoryImpl implements CurrencyRepository {
 
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     private RowMapper<Currency> rowMapper = ((resultSet, rowNum) -> {
@@ -26,20 +31,6 @@ public class CurrencyRepositoryImpl implements CurrencyRepository {
                 .build();
     });
 
-    private RowMapper<List<Currency>> listRowMapper = ((resultSet, rowNum) -> {
-        List<Currency> currencies = new ArrayList<>();
-        while (resultSet.next()) {
-            currencies.add(Currency.builder()
-                    .id(resultSet.getLong("id"))
-                    .name(resultSet.getString("currency_name"))
-                    .description(resultSet.getString("currency_description"))
-                    .createdAt(resultSet.getTimestamp("created_at"))
-                    .gameId(resultSet.getLong("game_id"))
-                    .build());
-        }
-        return currencies;
-    });
-
     //language=sql
     private final String SQL_INSERT_CURRENCY = "INSERT INTO currency (currency_name, currency_description, game_id) VALUES (?,?,?)";
     private final String SQL_FIND_CURRENCIES_BY_GAME_ID = "SELECT * FROM currency WHERE game_id=?";
@@ -47,10 +38,6 @@ public class CurrencyRepositoryImpl implements CurrencyRepository {
     private final String SQL_FIND_BY_ID = "SELECT * FROM currency WHERE id=?";
     private final String SQL_UPDATE_CURRENCY_INFO_BY_ID = "update currency set currency_name = ?, currency_description = ? where id = ?;";
 
-
-    public CurrencyRepositoryImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public <S extends Currency> S save(S entity) {
@@ -94,7 +81,7 @@ public class CurrencyRepositoryImpl implements CurrencyRepository {
     public Iterable<Currency> findAll() {
         Iterable<Currency> currencies;
         try {
-            currencies = jdbcTemplate.queryForObject(SQL_FIND_ALL, listRowMapper);
+            currencies = jdbcTemplate.query(SQL_FIND_ALL, rowMapper);
         } catch (DataAccessException ex) {
             return new ArrayList<>();
         }
@@ -141,7 +128,7 @@ public class CurrencyRepositoryImpl implements CurrencyRepository {
 
         List<Currency> currencies;
         try {
-            currencies = jdbcTemplate.queryForObject(SQL_FIND_CURRENCIES_BY_GAME_ID, listRowMapper, gameId);
+            currencies = jdbcTemplate.query(SQL_FIND_CURRENCIES_BY_GAME_ID, rowMapper, gameId);
         } catch (DataAccessException ex) {
             return new ArrayList<>();
         }

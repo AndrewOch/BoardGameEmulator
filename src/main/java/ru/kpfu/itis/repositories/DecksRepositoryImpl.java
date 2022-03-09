@@ -1,19 +1,24 @@
 package ru.kpfu.itis.repositories;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import ru.kpfu.itis.model.Deck;
+import org.springframework.stereotype.Component;
+import ru.kpfu.itis.models.entities.Deck;
+import ru.kpfu.itis.repositories.interfaces.DecksRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Component("decksRepositoryJdbcTemplateImpl")
 public class DecksRepositoryImpl implements DecksRepository {
 
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
     private RowMapper<Deck> rowMapper = ((resultSet, rowNum) -> {
@@ -24,18 +29,6 @@ public class DecksRepositoryImpl implements DecksRepository {
                 .build();
     });
 
-    private RowMapper<List<Deck>> listRowMapper = ((resultSet, rowNum) -> {
-        List<Deck> decks = new ArrayList<>();
-        while (resultSet.next()) {
-            decks.add(Deck.builder()
-                    .id(resultSet.getLong("id"))
-                    .name(resultSet.getString("deck_name"))
-                    .description(resultSet.getString("deck_description"))
-                    .build());
-        }
-        return decks;
-    });
-
     //language=sql
     private final String SQL_INSERT_DECK = "INSERT INTO deck (deck_name, deck_description) VALUES (?,?)";
     private final String SQL_LINK_DECK_TO_GAME = "INSERT INTO game_decks (game_id, deck_id) VALUES (?,?)";
@@ -43,11 +36,6 @@ public class DecksRepositoryImpl implements DecksRepository {
     private final String SQL_FIND_ALL = "SELECT * FROM deck;";
     private final String SQL_FIND_BY_ID = "SELECT * FROM deck WHERE id=?";
     private final String SQL_UPDATE_DECK_INFO_BY_ID = "update deck set deck_name = ?, deck_description = ? where id = ?;";
-
-
-    public DecksRepositoryImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public <S extends Deck> S save(S entity) {
@@ -86,7 +74,7 @@ public class DecksRepositoryImpl implements DecksRepository {
 
         List<Deck> decks;
         try {
-            decks = jdbcTemplate.queryForObject(SQL_FIND_DECKS_BY_GAME_ID, listRowMapper);
+            decks = jdbcTemplate.query(SQL_FIND_DECKS_BY_GAME_ID, rowMapper);
         } catch (DataAccessException ex) {
             return new ArrayList<>();
         }
@@ -103,7 +91,7 @@ public class DecksRepositoryImpl implements DecksRepository {
     public Iterable<Deck> findAll() {
         Iterable<Deck> decks;
         try {
-            decks = jdbcTemplate.queryForObject(SQL_FIND_ALL, listRowMapper);
+            decks = jdbcTemplate.query(SQL_FIND_ALL, rowMapper);
         } catch (DataAccessException ex) {
             return new ArrayList<>();
         }
@@ -165,15 +153,16 @@ public class DecksRepositoryImpl implements DecksRepository {
 
     @Override
     public void linkDeckToGame(Long deckId, Long gameId) {
-        //TODO Уточнить метод
-//        ResultSet resultSet = null;
-//        try {
-//            PreparedStatement preparedStatement = connection.prepareStatement(SQL_LINK_DECK_TO_GAME);
-//            preparedStatement.setLong(1, gameId);
-//            preparedStatement.setLong(2, deckId);
-//            preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//        }
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement statement = connection.prepareStatement(SQL_LINK_DECK_TO_GAME, new String[]{"id"});
+
+            statement.setLong(1, deckId);
+            statement.setLong(2, gameId);
+
+            return statement;
+        }, keyHolder);
     }
 
 }
