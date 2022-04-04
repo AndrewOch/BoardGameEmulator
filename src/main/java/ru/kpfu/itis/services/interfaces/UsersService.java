@@ -13,4 +13,5 @@ public interface UsersService {
 
     User findUserByCookieValue(String cookieValue);
 
+    boolean usernameDoesntExist(String username);
 }

@@ -31,9 +31,7 @@ public class SignInFilter implements Filter {
             response.sendRedirect("/auth");
             return;
         }
-
         filterChain.doFilter(servletRequest, servletResponse);
-
     }
 
     @Override

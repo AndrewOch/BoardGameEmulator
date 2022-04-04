@@ -7,11 +7,13 @@ import ru.kpfu.itis.dto.AuthDto;
 import ru.kpfu.itis.models.form.UserForm;
 import ru.kpfu.itis.models.entities.Auth;
 import ru.kpfu.itis.models.entities.User;
-import ru.kpfu.itis.repositories.interfaces.AuthRepository;
-import ru.kpfu.itis.repositories.interfaces.UsersRepository;
+import ru.kpfu.itis.repositories.AuthRepository;
+import ru.kpfu.itis.repositories.UsersRepository;
 import ru.kpfu.itis.services.interfaces.UsersService;
 
 import javax.servlet.http.Cookie;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,9 +33,10 @@ public class UsersServicesImpl implements UsersService {
         User user = new User();
         user.setUsername(userForm.getUsername());
         user.setEmail(userForm.getEmail());
-
+        user.setCreatedAt(Timestamp.from(Instant.now()));
         String passwordHash = passwordEncoder.encode(userForm.getPassword());
         user.setPasswordHash(passwordHash);
+        System.out.println(user);
         return usersRepository.save(user);
     }
 
@@ -41,7 +44,7 @@ public class UsersServicesImpl implements UsersService {
     public Cookie signIn(AuthDto authDto) {
 
         User user = null;
-        Optional<User> optional = usersRepository.findByLogin(authDto.getLogin());
+        Optional<User> optional = usersRepository.findByUsername(authDto.getLogin());
         if (optional.isPresent()) user = optional.get();
 
         System.out.println(user);
@@ -53,8 +56,8 @@ public class UsersServicesImpl implements UsersService {
                 Auth auth = new Auth();
                 auth.setUser(user);
                 auth.setCookieValue(cookieValue);
-                authRepository.save(auth);
-
+                Auth auth1 = authRepository.save(auth);
+                System.out.println(auth1);
                 Cookie cookie = new Cookie("auth", cookieValue);
                 cookie.setMaxAge(10 * 60 * 60);
                 return cookie;
@@ -79,5 +82,10 @@ public class UsersServicesImpl implements UsersService {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public boolean usernameDoesntExist(String username) {
+        return usersRepository.existsByUsername(username);
     }
 }

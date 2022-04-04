@@ -2,22 +2,16 @@ package ru.kpfu.itis.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.kpfu.itis.models.entities.*;
 import ru.kpfu.itis.models.form.CardForm;
 import ru.kpfu.itis.models.form.CurrencyForm;
 import ru.kpfu.itis.models.form.DeckForm;
 import ru.kpfu.itis.models.form.GameForm;
-import ru.kpfu.itis.models.entities.Card;
-import ru.kpfu.itis.models.entities.Currency;
-import ru.kpfu.itis.models.entities.Deck;
-import ru.kpfu.itis.models.entities.Game;
-import ru.kpfu.itis.repositories.interfaces.CardsRepository;
-import ru.kpfu.itis.repositories.interfaces.CurrencyRepository;
-import ru.kpfu.itis.repositories.interfaces.DecksRepository;
-import ru.kpfu.itis.repositories.interfaces.GamesRepository;
+import ru.kpfu.itis.repositories.*;
 import ru.kpfu.itis.services.interfaces.GamesService;
-import ru.kpfu.itis.services.interfaces.UsersService;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,13 +26,16 @@ public class GamesServiceImpl implements GamesService {
     private CardsRepository cardsRepository;
     @Autowired
     private CurrencyRepository currencyRepository;
+    @Autowired
+    private UserGamesRepository userGamesRepository;
+    @Autowired
+    private GameDecksRepository gameDecksRepository;
 
     @Override
     public Game addGame(GameForm gameForm) {
         Game game = new Game();
         game.setName(gameForm.getName());
         game.setDescription(gameForm.getDescription());
-
         game = gamesRepository.save(game);
         return game;
     }
@@ -49,7 +46,11 @@ public class GamesServiceImpl implements GamesService {
         deck.setName(deckForm.getName());
         deck.setDescription(deckForm.getDescription());
         deck = decksRepository.save(deck);
-        decksRepository.linkDeckToGame(deck.getId(), gameId);
+        GameDecks gameDecks = GameDecks.builder()
+                .gameId(gameId)
+                .deckId(deck.getId())
+                .build();
+        gameDecksRepository.save(gameDecks);
         return deck;
     }
 
@@ -60,7 +61,7 @@ public class GamesServiceImpl implements GamesService {
         card.setDescription(cardForm.getDescription());
         card.setValue(cardForm.getValue());
         card.setCurrencyId(cardForm.getCurrencyId());
-        card.setDeckId(cardForm.getDeckId());
+        card.setDeck(Deck.builder().id(cardForm.getDeckId()).build());
         return cardsRepository.save(card);
     }
 
@@ -69,7 +70,7 @@ public class GamesServiceImpl implements GamesService {
         Currency currency = new Currency();
         currency.setName(currencyForm.getName());
         currency.setDescription(currencyForm.getDescription());
-        currency.setGameId(currencyForm.getGameId());
+        currency.setGame(Game.builder().id(currencyForm.getGameId()).build());
         return currencyRepository.save(currency);
     }
 
@@ -95,12 +96,17 @@ public class GamesServiceImpl implements GamesService {
 
     @Override
     public void linkGameToUser(Long gameId, Long userId) {
-        gamesRepository.linkGameToUser(gameId, userId);
+        UserGames userGames = UserGames.builder()
+                .userId(userId)
+                .gameId(gameId)
+                .build();
+        userGamesRepository.save(userGames);
     }
 
     @Override
     public void deleteDuplicateCards(Integer uniquenessToken, Integer count) {
-        cardsRepository.deleteDuplicates(uniquenessToken, count);
+        //TODO
+        //cardsRepository.deleteDuplicates(uniquenessToken, count);
     }
 
     @Override
@@ -131,12 +137,12 @@ public class GamesServiceImpl implements GamesService {
         }
 
         Game game = optionalGame.get();
-        game.setCurrencies((ArrayList<Currency>) currencyRepository.findCurrenciesByGameId(gameId));
+        game.setCurrencies(currencyRepository.findAllByGameId(gameId));
 
         ArrayList<Deck> decks = (ArrayList<Deck>) decksRepository.findDecksByGameId(gameId);
 
         for (Deck deck : decks) {
-            deck.setCards((ArrayList<Card>) cardsRepository.findCardsByDeckId(deck.getId()));
+            deck.setCards(cardsRepository.findAllByDeckId(deck.getId()));
         }
 
         game.setDecks(decks);
@@ -151,7 +157,7 @@ public class GamesServiceImpl implements GamesService {
             return null;
         }
         Deck deck = optionalGame.get();
-        deck.setCards((ArrayList<Card>) findCardsByDeckId(deckId));
+        deck.setCards(findCardsByDeckId(deckId));
         return deck;
     }
 
@@ -180,20 +186,26 @@ public class GamesServiceImpl implements GamesService {
 
     @Override
     public List<Currency> findCurrenciesByGameId(Long gameId) {
-        return currencyRepository.findCurrenciesByGameId(gameId);
+        return currencyRepository.findAllByGameId(gameId);
     }
 
     @Override
     public List<Card> findCardsByDeckId(Long deckId) {
-        return cardsRepository.findCardsByDeckId(deckId);
+        return cardsRepository.findAllByDeckId(deckId);
     }
 
     @Override
     public List<Game> findGamesByUserId(Long userId) {
-        List<Game> games = (List<Game>) gamesRepository.findGamesByUserId(userId);
-        for (Game game : games) {
-            game.setDecks((ArrayList<Deck>) decksRepository.findDecksByGameId(game.getId()));
-            game.setCurrencies((ArrayList<Currency>) currencyRepository.findCurrenciesByGameId(game.getId()));
+        List<Game> games = new ArrayList<>();
+        List<Object[]> results = gamesRepository.findAllByUserId(userId);
+        for(Object[] entry: results){
+            Game game = new Game();
+            game.setId((Long) entry[0]);
+            game.setName(String.valueOf(entry[1]));
+            game.setDescription(String.valueOf(entry[2]));
+            game.setDecks(decksRepository.findDecksByGameId(game.getId()));
+            game.setCurrencies(currencyRepository.findAllByGameId(game.getId()));
+            games.add(game);
         }
         return games;
     }

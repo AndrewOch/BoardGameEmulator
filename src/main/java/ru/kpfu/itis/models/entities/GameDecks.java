@@ -8,21 +8,21 @@ import javax.persistence.*;
 @Getter
 @Setter
 @EqualsAndHashCode
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @ToString
 @Entity
-@Table(name = "auth")
-public class Auth {
+@Table(name = "game_decks")
+public class GameDecks {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private User user;
+    @Column(name = "game_id")
+    private Long gameId;
 
-    @Column(name = "cookie_value")
-    private String cookieValue;
+    @Column(name = "deck_id")
+    private Long deckId;
 }

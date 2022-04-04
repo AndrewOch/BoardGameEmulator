@@ -41,8 +41,17 @@ public class GamesController {
     private ArrayList<PlayDeckPair> decks;
 
     @RequestMapping(method = RequestMethod.GET, value = "/games")
-    private ModelAndView gamesPage(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private ModelAndView gamesPage(String redirect, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ModelAndView modelAndView = new ModelAndView();
+        Cookie usernameCookie = CookieService.getCookie(request, "username");
+        System.out.println(usernameCookie.toString());
+        if (usernameCookie != null) {
+            modelAndView.addObject("username", usernameCookie.getValue());
+        }
+        if (redirect != null) {
+            modelAndView.setViewName("redirect:/" + redirect);
+            return modelAndView;
+        }
 
         Cookie auth = CookieService.getCookie(request, "auth");
         System.out.println("cookie value: " + auth.getValue());
@@ -53,14 +62,16 @@ public class GamesController {
 
             String currentEditGameId = request.getParameter("current_edit_game_id");
             if (currentEditGameId != null) {
-                request.getRequestDispatcher("WEB-INF/jsp/creator.jsp").forward(request, response);
-                return null;
+                modelAndView.addObject("currentEditGameId", Long.valueOf(currentEditGameId));
+                modelAndView.setViewName("redirect:/creator");
+                return modelAndView;
             }
 
             String currentPlayGameId = request.getParameter("current_play_game_id");
             if (currentPlayGameId != null) {
-                request.getRequestDispatcher("WEB-INF/jsp/play.jsp").forward(request, response);
-                return null;
+                modelAndView.addObject("currentPlayGameId", Long.valueOf(currentPlayGameId));
+                modelAndView.setViewName("redirect:/play");
+                return modelAndView;
             }
         }
         modelAndView.setViewName("games");
@@ -68,7 +79,7 @@ public class GamesController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/games")
-    private String createGame(GameDto gameDto, HttpServletRequest request, HttpServletResponse response) {
+    private ModelAndView createGame(GameDto gameDto, HttpServletRequest request, HttpServletResponse response) {
 
         String name = gameDto.getGame_name();
         String description = gameDto.getGame_description();
@@ -80,18 +91,26 @@ public class GamesController {
                 gamesService.linkGameToUser(game.getId(), usersService.findUserByCookieValue(Objects.requireNonNull(CookieService.getCookie(request, "auth")).getValue()).getId());
                 Cookie cookie = new Cookie("current_edit_game_id", game.getId().toString());
                 response.addCookie(cookie);
-                return "redirect:/creator";
+                return new ModelAndView("redirect:/creator");
             }
         }
-        return "redirect:/games";
+        return new ModelAndView("redirect:/games");
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/creator")
-    private ModelAndView createGamePage(CreateGameDto createGameDto, HttpServletRequest request) {
-
+    private ModelAndView createGamePage(String redirect, CreateGameDto createGameDto, HttpServletRequest request, Long currentEditGameId) {
         ModelAndView modelAndView = new ModelAndView();
+        if (redirect != null) {
+            modelAndView.setViewName("redirect:/" + redirect);
+            return modelAndView;
+        }
         Cookie auth = CookieService.getCookie(request, "auth");
         if (auth != null) {
+
+            if(currentEditGameId != null){
+                Game game = gamesService.findGameById(currentEditGameId);
+                modelAndView.addObject(game);
+            }
 
             Cookie editingGameId = CookieService.getCookie(request, "editing_game");
             Cookie deckOfAddingCard = CookieService.getCookie(request, "deck_of_adding_card");
@@ -155,13 +174,13 @@ public class GamesController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/creator")
-    private String editGame(EditGameDto editGameDto, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    private ModelAndView editGame(EditGameDto editGameDto, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
         ObjectMapper objectMapper = new ObjectMapper();
         Cookie auth = CookieService.getCookie(request, "auth");
         if (auth != null) {
 
-            String param = editGameDto.getCurrent_edit_game_id();
+            String param = editGameDto.getCurrentEditGameId();
             if (param != null) {
                 Cookie cookie = new Cookie("editing_game", param);
                 response.addCookie(cookie);
@@ -203,15 +222,25 @@ public class GamesController {
                 response.setContentType("application/json");
                 response.getWriter().println(json);
             }
-            request.getRequestDispatcher("WEB-INF/jsp/creator.jsp").forward(request, response);
-            return null;
+            return new ModelAndView("creator");
         }
-        return "redirect:/create";
+        return new ModelAndView("redirect:/create");
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/play")
-    private ModelAndView playGamePage() {
+    private ModelAndView playGamePage(String redirect, Long currentPlayGameId) {
         ModelAndView modelAndView = new ModelAndView();
+        if (redirect != null) {
+            modelAndView.setViewName("redirect:/" + redirect);
+            return modelAndView;
+        }
+        if (currentPlayGameId == null) {
+            modelAndView.setViewName("redirect:/games");
+            return modelAndView;
+        }
+
+        Game game = gamesService.findGameById(currentPlayGameId);
+        modelAndView.addObject(game);
         modelAndView.setViewName("play");
         return modelAndView;
     }
