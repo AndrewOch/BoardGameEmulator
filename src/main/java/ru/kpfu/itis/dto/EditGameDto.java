@@ -9,9 +9,26 @@ import lombok.*;
 @Getter
 @EqualsAndHashCode
 public class EditGameDto {
+
     private String currentEditGameId;
-    private String current_edit_currency_id;
-    private String current_edit_deck_id;
-    private String deck_to_show_cards;
-    private String current_edit_card_id;
+    private String editingAction;
+
+    private String gameName;
+    private String gameDescription;
+
+    private String currentEditCurrencyId;
+    private String currencyName;
+    private String currencyDescription;
+
+    private String currentEditDeckId;
+    private String deckName;
+    private String deckDescription;
+
+    private String deckToShowCards;
+    private String currentEditCardId;
+    private String cardName;
+    private String cardDescription;
+    private String cardCurrencyId;
+    private String cardValue;
+    private String cardCopiesCount;
 }

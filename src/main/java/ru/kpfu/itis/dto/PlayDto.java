@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @EqualsAndHashCode
 public class PlayDto {
-    private String current_play_game_id;
-    private String deck_to_take_card_from;
-    private String deck_to_shuffle;
+    private String currentPlayGameId;
+    private String deckToTakeCardFrom;
+    private String deckToShuffle;
 }

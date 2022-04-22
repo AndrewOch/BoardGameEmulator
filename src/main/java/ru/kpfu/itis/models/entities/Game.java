@@ -1,13 +1,13 @@
 package ru.kpfu.itis.models.entities;
 
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Data
-@Getter
-@Setter
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,6 +28,7 @@ public class Game {
     private String description;
 
     @ManyToMany
+//            (fetch = FetchType.EAGER)
     @JoinTable(
             name = "game_decks",
             joinColumns = @JoinColumn(name = "game_id"),
@@ -44,6 +45,7 @@ public class Game {
             joinColumns = @JoinColumn(name = "game_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+    @Fetch(value = FetchMode.JOIN)
     private List<User> user;
 
 }

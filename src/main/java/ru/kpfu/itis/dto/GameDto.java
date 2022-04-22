@@ -9,6 +9,9 @@ import lombok.*;
 @Getter
 @EqualsAndHashCode
 public class GameDto {
-    private String game_name;
-    private String game_description;
+    private String currentEditGameId;
+    private String currentPlayGameId;
+
+    private String gameName;
+    private String gameDescription;
 }

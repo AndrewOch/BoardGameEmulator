@@ -14,8 +14,8 @@
         <div class="title"><h1>Эмулятор настольных игр</h1></div>
     </div>
     <div class="menu">
-        <a class="menu-option" href="/main">Главная</a>
-        <a class="menu-option selected" href="/games">Мои игры</a>
+        <a class="menu-option selected" href="/main">Главная</a>
+        <a class="menu-option" href="/games">Мои игры</a>
         <a class="menu-option" href="/creator">Редактор</a>
         <a class="menu-option" href="/logout">Выход</a>
     </div>
@@ -23,11 +23,6 @@
 
 <div style="margin: 0 auto;
     padding: 0;">
-
-    <div class="menu">
-        <h2 class="menu-option" style="height: 50px">${username}</h2>
-    </div>
-
     <div class="wrapper-3">
         <#list games as game>
             <div class="container-item">

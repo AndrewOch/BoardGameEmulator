@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import ru.kpfu.itis.security.filter.CookieAuthFilter;
 import ru.kpfu.itis.security.handler.SuccessfulAuthenticationHandler;
 
@@ -28,6 +29,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private SuccessfulAuthenticationHandler successfulAuthenticationHandler;
 
     @Autowired
+    @Qualifier("customLogoutHandler")
+    private LogoutHandler logoutHandler;
+
+    @Autowired
     @Qualifier("customUserDetailsImpl")
     private UserDetailsService userDetailsService;
 
@@ -38,25 +43,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/signUp").permitAll()
-                .antMatchers("/profile").authenticated()
+                .antMatchers("/register", "/auth").permitAll()
+                .antMatchers("/play", "/games", "/creator").authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/signIn")
-                .usernameParameter("email")
+                .loginPage("/auth")
+                .usernameParameter("login")
                 .passwordParameter("password")
                 .successHandler(successfulAuthenticationHandler)
-                .failureUrl("/signIn?error")
+                .failureUrl("/auth?error")
                 .permitAll()
-                //.defaultSuccessUrl("/profile")
                 .and()
-                .logout().logoutSuccessUrl("/signIn").permitAll()
+                .logout()
+                .logoutUrl("/logout")
+                .addLogoutHandler(logoutHandler)
+                .deleteCookies("Auth", "JSESSIONID")
+                .logoutSuccessUrl("/auth").permitAll()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                /*.and()
-                .antMatchers("/signUp", "/signIn", "/main").permitAll()
-                .antMatchers("/profile", "/order").hasAnyRole(Role.ROLE_USER.name(), Role.ROLE_ADMIN.name())
-                .antMatchers("/admin").hasRole(Role.ROLE_ADMIN.name());*/
         http.addFilterAfter(cookieAuthFilter, UsernamePasswordAuthenticationFilter.class);
     }
 

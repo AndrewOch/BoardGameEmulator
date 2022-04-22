@@ -18,9 +18,9 @@ public class PlayDeckPair {
     private Stack<Card> deck;
     private Stack<Card> waste;
 
-    public PlayDeckPair(Long deckId, Stack<Card> deck) {
-        this.deckId = deckId;
-        this.deck = deck;
-        waste = new Stack<>();
+    public Card takeCard() {
+        Card card = deck.pop();
+        waste.push(card);
+        return card;
     }
 }

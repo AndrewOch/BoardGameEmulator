@@ -36,6 +36,6 @@ public class Card {
     @Column(name = "value")
     private Integer value;
 
-    @Column(name = "uniqueness_token")
-    private Integer uniquenessToken;
+    @Column(name = "copies_count")
+    private Integer copiesCount;
 }

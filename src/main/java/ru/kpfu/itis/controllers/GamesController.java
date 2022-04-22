@@ -1,14 +1,13 @@
 package ru.kpfu.itis.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import ru.kpfu.itis.dto.CreateGameDto;
 import ru.kpfu.itis.dto.EditGameDto;
 import ru.kpfu.itis.dto.GameDto;
 import ru.kpfu.itis.dto.PlayDto;
@@ -41,250 +40,281 @@ public class GamesController {
     private ArrayList<PlayDeckPair> decks;
 
     @RequestMapping(method = RequestMethod.GET, value = "/games")
-    private ModelAndView gamesPage(String redirect, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private ModelAndView gamesPage(Authentication authentication, GameDto gameDto) throws ServletException, IOException {
         ModelAndView modelAndView = new ModelAndView();
-        Cookie usernameCookie = CookieService.getCookie(request, "username");
-        System.out.println(usernameCookie.toString());
-        if (usernameCookie != null) {
-            modelAndView.addObject("username", usernameCookie.getValue());
+
+        if (authentication == null) {
+            modelAndView.setViewName("redirect:/auth");
+            return modelAndView;
         }
-        if (redirect != null) {
-            modelAndView.setViewName("redirect:/" + redirect);
+        User user = (User) authentication.getPrincipal();
+        modelAndView.addObject("username", user.getUsername());
+
+        List<Game> games = gamesService.findGamesByUserId(user.getId());
+        modelAndView.addObject("games", games);
+
+        String currentEditGameId = gameDto.getCurrentEditGameId();
+        if (currentEditGameId != null) {
+            modelAndView.addObject("currentEditGameId", Long.valueOf(currentEditGameId));
+            modelAndView.setViewName("redirect:/creator");
             return modelAndView;
         }
 
-        Cookie auth = CookieService.getCookie(request, "auth");
-        System.out.println("cookie value: " + auth.getValue());
-        if (auth != null) {
-            User user = usersService.findUserByCookieValue(auth.getValue());
-            List<Game> games = gamesService.findGamesByUserId(user.getId());
-            modelAndView.addObject("games", games);
-
-            String currentEditGameId = request.getParameter("current_edit_game_id");
-            if (currentEditGameId != null) {
-                modelAndView.addObject("currentEditGameId", Long.valueOf(currentEditGameId));
-                modelAndView.setViewName("redirect:/creator");
-                return modelAndView;
-            }
-
-            String currentPlayGameId = request.getParameter("current_play_game_id");
-            if (currentPlayGameId != null) {
-                modelAndView.addObject("currentPlayGameId", Long.valueOf(currentPlayGameId));
-                modelAndView.setViewName("redirect:/play");
-                return modelAndView;
-            }
+        String currentPlayGameId = gameDto.getCurrentPlayGameId();
+        if (currentPlayGameId != null) {
+            modelAndView.addObject("currentPlayGameId", Long.valueOf(currentPlayGameId));
+            modelAndView.setViewName("redirect:/play");
+            return modelAndView;
         }
+
         modelAndView.setViewName("games");
         return modelAndView;
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/games")
-    private ModelAndView createGame(GameDto gameDto, HttpServletRequest request, HttpServletResponse response) {
+    private ModelAndView createGame(GameDto gameDto, Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+        if (authentication == null) {
+            return new ModelAndView("redirect:/auth");
+        }
+        User user = (User) authentication.getPrincipal();
 
-        String name = gameDto.getGame_name();
-        String description = gameDto.getGame_description();
+        String name = gameDto.getGameName();
+        String description = gameDto.getGameDescription();
 
         if (!name.equals("") && !description.equals("")) {
-            GameForm gameForm = new GameForm(name, description);
+            GameForm gameForm = new GameForm(name, description, user);
             Game game = gamesService.addGame(gameForm);
             if (game != null) {
-                gamesService.linkGameToUser(game.getId(), usersService.findUserByCookieValue(Objects.requireNonNull(CookieService.getCookie(request, "auth")).getValue()).getId());
-                Cookie cookie = new Cookie("current_edit_game_id", game.getId().toString());
-                response.addCookie(cookie);
-                return new ModelAndView("redirect:/creator");
+                ModelAndView modelAndView = new ModelAndView();
+                modelAndView.addObject("currentEditGameId", game.getId());
+                modelAndView.setViewName("redirect:/creator");
+                return modelAndView;
             }
         }
         return new ModelAndView("redirect:/games");
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/creator")
-    private ModelAndView createGamePage(String redirect, CreateGameDto createGameDto, HttpServletRequest request, Long currentEditGameId) {
+    private ModelAndView editGamePage(Authentication authentication, EditGameDto editGameDto) {
         ModelAndView modelAndView = new ModelAndView();
-        if (redirect != null) {
-            modelAndView.setViewName("redirect:/" + redirect);
+        if (authentication == null) {
+            modelAndView.setViewName("redirect:/auth");
             return modelAndView;
         }
-        Cookie auth = CookieService.getCookie(request, "auth");
-        if (auth != null) {
-
-            if(currentEditGameId != null){
-                Game game = gamesService.findGameById(currentEditGameId);
-                modelAndView.addObject(game);
-            }
-
-            Cookie editingGameId = CookieService.getCookie(request, "editing_game");
-            Cookie deckOfAddingCard = CookieService.getCookie(request, "deck_of_adding_card");
-
-            String gameId = createGameDto.getChoose_game();
-            String gameName = createGameDto.getGame_name();
-            String gameDescription = createGameDto.getGame_description();
-            if (gameId != null && gameName != null && gameDescription != null) {
-                Game game = gamesService.updateGameInfoById(Long.valueOf(gameId), gameName, gameDescription);
-            }
-
-            String currencyId = createGameDto.getChoose_currency();
-            String currencyName = createGameDto.getCurrency_name();
-            String currencyDescription = createGameDto.getCurrency_description();
-            if (currencyId != null && currencyName != null && currencyDescription != null) {
-                if (currencyId.equals("create")) {
-                    assert editingGameId != null;
-                    CurrencyForm currencyForm = new CurrencyForm(currencyName, currencyDescription, Long.valueOf(editingGameId.getValue()));
-                    Currency currency = gamesService.addCurrency(currencyForm);
-                } else {
-                    Currency currency = gamesService.updateCurrencyInfoById(Long.valueOf(currencyId), currencyName, currencyDescription);
-                }
-            }
-
-            String deckId = createGameDto.getChoose_deck();
-            String deckName = createGameDto.getDeck_name();
-            String deckDescription = createGameDto.getDeck_description();
-            if (deckId != null && deckName != null && deckDescription != null) {
-                if (deckId.equals("create")) {
-                    DeckForm deckForm = new DeckForm(deckName, deckDescription);
-                    assert editingGameId != null;
-                    Deck deck = gamesService.addDeck(deckForm, Long.valueOf(editingGameId.getValue()));
-                } else {
-                    Deck deck = gamesService.updateDeckInfoById(Long.valueOf(deckId), deckName, deckDescription);
-                }
-            }
-
-            String cardId = createGameDto.getChoose_card();
-            String cardName = createGameDto.getCard_name();
-            String cardDescription = createGameDto.getCard_description();
-            String cardCurrencyId = createGameDto.getCurrency_of_a_card();
-            String value = createGameDto.getCard_value();
-            if (cardId != null && cardName != null && cardDescription != null
-                    && cardCurrencyId != null && value != null) {
-                if (cardId.equals("create")) {
-                    assert deckOfAddingCard != null;
-                    CardForm cardForm = new CardForm(cardName, cardDescription, Long.valueOf(cardCurrencyId), Integer.valueOf(value), Long.valueOf(deckOfAddingCard.getValue()));
-                    Card card = gamesService.addCard(cardForm);
-                } else {
-                    Card card = gamesService.updateCardInfoById(Long.valueOf(cardId), cardName, cardDescription, Long.valueOf(cardCurrencyId), Integer.valueOf(value));
-                }
-            }
-
-            User user = usersService.findUserByCookieValue(auth.getValue());
-            List<Game> games = gamesService.findGamesByUserId(user.getId());
-            modelAndView.addObject("games", games);
+        User user = (User) authentication.getPrincipal();
+        String string = editGameDto.getCurrentEditGameId();
+        Long currentEditGameId;
+        if (string != null) {
+            currentEditGameId = Long.valueOf(string);
+            modelAndView.addObject("currentEditGameId", currentEditGameId);
+            Game game = gamesService.findGameById(currentEditGameId);
+            modelAndView.addObject(game);
         }
-
+        List<Game> games = gamesService.findGamesByUserId(user.getId());
+        modelAndView.addObject("games", games);
         modelAndView.setViewName("creator");
         return modelAndView;
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/creator")
-    private ModelAndView editGame(EditGameDto editGameDto, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-
+    private ModelAndView editGame(EditGameDto editGameDto, Authentication authentication, HttpServletResponse response) throws IOException, ServletException {
+        ModelAndView modelAndView = new ModelAndView();
         ObjectMapper objectMapper = new ObjectMapper();
-        Cookie auth = CookieService.getCookie(request, "auth");
-        if (auth != null) {
-
-            String param = editGameDto.getCurrentEditGameId();
-            if (param != null) {
-                Cookie cookie = new Cookie("editing_game", param);
-                response.addCookie(cookie);
-                Game game = gamesService.findGameById(Long.valueOf(param));
-                String json = objectMapper.writeValueAsString(game);
-                System.out.println(json);
-                response.setContentType("application/json");
-                response.getWriter().println(json);
-            }
-            param = editGameDto.getCurrent_edit_currency_id();
-            if (param != null) {
-                Currency currency = gamesService.findCurrencyById(Long.valueOf(param));
-                String json = objectMapper.writeValueAsString(currency);
-                response.setContentType("application/json");
-                response.getWriter().println(json);
-            }
-            param = editGameDto.getCurrent_edit_deck_id();
-            if (param != null) {
-                Deck currency = gamesService.findDeckById(Long.valueOf(param));
-                String json = objectMapper.writeValueAsString(currency);
-                response.setContentType("application/json");
-                System.out.println(json);
-                response.getWriter().println(json);
-            }
-
-            param = editGameDto.getDeck_to_show_cards();
-            if (param != null) {
-                Cookie cookie = new Cookie("deck_of_adding_card", param);
-                response.addCookie(cookie);
-                Deck currency = gamesService.findDeckById(Long.valueOf(param));
-                String json = objectMapper.writeValueAsString(currency);
-                response.setContentType("application/json");
-                response.getWriter().println(json);
-            }
-            param = editGameDto.getCurrent_edit_card_id();
-            if (param != null) {
-                Card card = gamesService.findCardById(Long.valueOf(param));
-                String json = objectMapper.writeValueAsString(card);
-                response.setContentType("application/json");
-                response.getWriter().println(json);
-            }
-            return new ModelAndView("creator");
+        if (authentication == null) {
+            modelAndView.setViewName("redirect:/auth");
+            return modelAndView;
         }
-        return new ModelAndView("redirect:/create");
+
+        User user = (User) authentication.getPrincipal();
+        List<Game> games = gamesService.findGamesByUserId(user.getId());
+        Game game;
+        modelAndView.addObject(games);
+
+        String string = editGameDto.getCurrentEditGameId();
+        Long currentEditGameId;
+        if (string != null && !string.equals("false")) {
+            currentEditGameId = Long.valueOf(string);
+            modelAndView.addObject("currentEditGameId", currentEditGameId);
+        } else {
+            return null;
+        }
+        String json = "";
+        switch (editGameDto.getEditingAction()) {
+            case "chooseGame" -> {
+                game = gamesService.findGameById(currentEditGameId);
+                json = objectMapper.writeValueAsString(game);
+            }
+            case "editGame" -> {
+                String gameName = editGameDto.getGameName();
+                String gameDescription = editGameDto.getGameDescription();
+                gamesService.updateGameInfoById(currentEditGameId, gameName, gameDescription);
+                game = gamesService.findGameById(currentEditGameId);
+                json = objectMapper.writeValueAsString(game);
+            }
+            case "chooseCurrency" -> {
+                String currentEditCurrencyId = editGameDto.getCurrentEditCurrencyId();
+                if (currentEditCurrencyId != null) {
+                    Currency currency = gamesService.findCurrencyById(Long.valueOf(currentEditCurrencyId));
+                    json = objectMapper.writeValueAsString(currency);
+                }
+            }
+            case "editCurrency" -> {
+                String currentEditCurrencyId = editGameDto.getCurrentEditCurrencyId();
+                String currencyName = editGameDto.getCurrencyName();
+                String currencyDescription = editGameDto.getCurrencyDescription();
+                if (currentEditCurrencyId != null && currencyName != null && currencyDescription != null) {
+                    Currency currency = gamesService.updateCurrencyInfoById(Long.valueOf(currentEditCurrencyId), currencyName, currencyDescription);
+                    json = objectMapper.writeValueAsString(currency);
+                }
+            }
+            case "createCurrency" -> {
+                String currencyName = editGameDto.getCurrencyName();
+                String currencyDescription = editGameDto.getCurrencyDescription();
+                if (currencyName != null && currencyDescription != null) {
+                    CurrencyForm currencyForm = new CurrencyForm(currencyName, currencyDescription, currentEditGameId);
+                    Currency currency = gamesService.addCurrency(currencyForm);
+                    json = objectMapper.writeValueAsString(currency);
+                }
+            }
+            case "chooseDeck" -> {
+                String currentEditDeckId = editGameDto.getCurrentEditDeckId();
+                if (currentEditDeckId != null && !currentEditDeckId.equals("create")) {
+                    Deck deck = gamesService.findDeckById(Long.valueOf(currentEditDeckId));
+                    json = objectMapper.writeValueAsString(deck);
+                }
+            }
+            case "editDeck" -> {
+                String currentEditDeckId = editGameDto.getCurrentEditDeckId();
+                String deckName = editGameDto.getDeckName();
+                String deckDescription = editGameDto.getDeckDescription();
+                if (currentEditDeckId != null) {
+                    Deck deck = gamesService.updateDeckInfoById(Long.valueOf(currentEditDeckId), deckName, deckDescription);
+                    json = objectMapper.writeValueAsString(deck);
+                }
+            }
+            case "createDeck" -> {
+                String deckName = editGameDto.getDeckName();
+                String deckDescription = editGameDto.getDeckDescription();
+                DeckForm deckForm = new DeckForm(deckName, deckDescription);
+                Deck deck = gamesService.addDeck(deckForm, currentEditGameId);
+                json = objectMapper.writeValueAsString(deck);
+            }
+            case "chooseDeckOfCards" -> {
+                String deckToShowCards = editGameDto.getDeckToShowCards();
+                if (deckToShowCards != null) {
+                    List<Card> cards = gamesService.findCardsByDeckId(Long.valueOf(deckToShowCards));
+                    json = objectMapper.writeValueAsString(cards);
+                }
+            }
+            case "chooseCard" -> {
+                String deckToShowCards = editGameDto.getDeckToShowCards();
+                String currentEditCardId = editGameDto.getCurrentEditCardId();
+                if (deckToShowCards != null && currentEditCardId != null) {
+                    Card card = gamesService.findCardById(Long.valueOf(currentEditCardId));
+                    json = objectMapper.writeValueAsString(card);
+                }
+            }
+            case "editCard" -> {
+                String deckToShowCards = editGameDto.getDeckToShowCards();
+                String currentEditCardId = editGameDto.getCurrentEditCardId();
+                String cardName = editGameDto.getCardName();
+                String cardDescription = editGameDto.getCardDescription();
+                String cardCurrencyIdString = editGameDto.getCardCurrencyId();
+                String cardValue = editGameDto.getCardValue();
+                String copiesCount = editGameDto.getCardCopiesCount();
+                Long cardCurrencyId = null;
+                if (cardCurrencyIdString != null) {
+                    cardCurrencyId = Long.valueOf(cardCurrencyIdString);
+                }
+                if (deckToShowCards != null && currentEditCardId != null) {
+                    Card card = gamesService.updateCardInfoById(Long.valueOf(currentEditCardId), cardName, cardDescription, cardCurrencyId, Integer.valueOf(cardValue), Integer.valueOf(copiesCount));
+                    json = objectMapper.writeValueAsString(card);
+                }
+            }
+            case "createCard" -> {
+                String deckToShowCards = editGameDto.getDeckToShowCards();
+                String cardName = editGameDto.getCardName();
+                String cardDescription = editGameDto.getCardDescription();
+                String cardCurrencyId = editGameDto.getCardCurrencyId();
+                String cardValue = editGameDto.getCardValue();
+                String copiesCount = editGameDto.getCardCopiesCount();
+                if (deckToShowCards != null) {
+                    CardForm cardForm = CardForm.builder()
+                            .name(cardName)
+                            .description(cardDescription)
+                            .value(Integer.valueOf(cardValue))
+                            .deckId(Long.valueOf(deckToShowCards))
+                            .copiesCount(Integer.valueOf(copiesCount))
+                            .build();
+                    if (cardCurrencyId != null) {
+                        cardForm.setCurrencyId(Long.valueOf(cardCurrencyId));
+                    }
+                    Card card = gamesService.addCard(cardForm);
+                    json = objectMapper.writeValueAsString(card);
+                }
+            }
+        }
+        System.out.println(json);
+        response.setContentType("application/json");
+        response.getWriter().println(json);
+        return null;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/play")
-    private ModelAndView playGamePage(String redirect, Long currentPlayGameId) {
+    private ModelAndView playGamePage(Long currentPlayGameId) {
         ModelAndView modelAndView = new ModelAndView();
-        if (redirect != null) {
-            modelAndView.setViewName("redirect:/" + redirect);
-            return modelAndView;
-        }
         if (currentPlayGameId == null) {
             modelAndView.setViewName("redirect:/games");
             return modelAndView;
         }
 
         Game game = gamesService.findGameById(currentPlayGameId);
+        decks = new ArrayList<>();
+        for (Deck deck : game.getDecks()) {
+            PlayDeckPair playDeckPair = new PlayDeckPair();
+            playDeckPair.setDeckId(deck.getId());
+            Stack<Card> cards = new Stack<>();
+            cards.addAll(deck.getCards());
+            playDeckPair.setDeck(cards);
+            playDeckPair.setWaste(new Stack<>());
+            decks.add(playDeckPair);
+        }
         modelAndView.addObject(game);
         modelAndView.setViewName("play");
         return modelAndView;
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/play")
-    private void playGame(PlayDto playDto, HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-        Cookie auth = CookieService.getCookie(request, "auth");
+    private ModelAndView playGame(Authentication authentication, PlayDto playDto, HttpServletResponse response) throws IOException {
+        ModelAndView modelAndView = new ModelAndView();
         ObjectMapper objectMapper = new ObjectMapper();
-        if (auth != null) {
 
-            String param = playDto.getCurrent_play_game_id();
-            if (param != null) {
-                Game game = gamesService.findGameById(Long.valueOf(param));
-                decks = new ArrayList<>();
-                for (Deck deck : game.getDecks()) {
-                    Stack<Card> stack = new Stack<>();
-                    stack.addAll(deck.getCards());
-                    PlayDeckPair playDeckPair = new PlayDeckPair(deck.getId(), stack);
-                    decks.add(playDeckPair);
-                }
-                String json = objectMapper.writeValueAsString(game);
-                response.setContentType("application/json");
-                response.getWriter().println(json);
-            }
-
-            param = playDto.getDeck_to_take_card_from();
-            if (param != null) {
-                Long id = Long.valueOf(param);
-                takeCard(id);
-                String json = objectMapper.writeValueAsString(getDeckById(id));
-                response.setContentType("application/json");
-                response.getWriter().println(json);
-            }
-
-            param = playDto.getDeck_to_shuffle();
-            if (param != null) {
-                Long id = Long.valueOf(param);
-                shuffleDeck(id);
-                String json = objectMapper.writeValueAsString(getDeckById(id));
-                response.setContentType("application/json");
-                response.getWriter().println(json);
-            }
+        if (authentication == null) {
+            modelAndView.setViewName("redirect:/auth");
+            return modelAndView;
         }
+        User user = (User) authentication.getPrincipal();
+
+        String param = playDto.getDeckToTakeCardFrom();
+        if (param != null) {
+            Long id = Long.valueOf(param);
+            Card card = Objects.requireNonNull(getDeckById(id)).takeCard();
+            String json = objectMapper.writeValueAsString(getDeckById(id));
+            response.setContentType("application/json");
+            response.getWriter().println(json);
+            return null;
+        }
+
+        param = playDto.getDeckToShuffle();
+        if (param != null) {
+            Long id = Long.valueOf(param);
+            shuffleDeck(id);
+            String json = objectMapper.writeValueAsString(getDeckById(id));
+            response.setContentType("application/json");
+            response.getWriter().println(json);
+            return null;
+        }
+        return modelAndView;
     }
 
     private PlayDeckPair getDeckById(Long deckId) {
@@ -294,13 +324,6 @@ public class GamesController {
             }
         }
         return null;
-    }
-
-    private void takeCard(Long deckId) {
-        PlayDeckPair deck = getDeckById(deckId);
-        assert deck != null;
-        Card card = deck.getDeck().pop();
-        deck.getWaste().push(card);
     }
 
     private void shuffleDeck(Long deckId) {

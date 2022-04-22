@@ -10,21 +10,6 @@
     <div>
         <div class="title"><h1>Эмулятор настольных игр</h1></div>
     </div>
-    <div class="menu">
-        <form class="menu-option" method="get" name="redirect">
-            <button type="submit" name="redirect" value="play">Играть</button>
-        </form>
-        <form class="menu-option" method="get" name="redirect">
-            <button type="submit" name="redirect" value="games">Мои игры</button>
-        </form>
-        <form class="menu-option" method="get" name="redirect">
-            <button type="submit" name="redirect" value="creator">Редактор</button>
-        </form>
-        <form class="menu-option" method="get" name="redirect">
-            <button type="submit" name="redirect" value="auth">Вход</button>
-        </form>
-    </div>
-
 </div>
 <div class="center, container" style="height: 65%;">
     <div class="sign-in-top-bar">
@@ -55,7 +40,7 @@
         </p>
         <button type="submit">Создать аккаунт</button>
         <#if error??>
-        <p class="info-text" style="margin-top: 0">${validation}</p>
+            <p class="info-text" style="margin-top: 0">${validation}</p>
         </#if>
     </form>
 </div>

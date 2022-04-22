@@ -1,8 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-    <script src="/resources/javascript/creator.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="/resources/javascript/creator/gameEditor.js"></script>
+    <script src="/resources/javascript/creator/currencyEditor.js"></script>
+    <script src="/resources/javascript/creator/deckEditor.js"></script>
+    <script src="/resources/javascript/creator/cardEditor.js"></script>
+
     <link rel="stylesheet" href="/resources/css/styles.css">
     <title>Редактор</title>
 </head>
@@ -13,26 +18,18 @@
         <div class="title"><h1>Эмулятор настольных игр</h1></div>
     </div>
     <div class="menu">
-        <form class="menu-option" method="get" name="redirect">
-            <button type="submit" name="redirect" value="play">Играть</button>
-        </form>
-        <form class="menu-option" method="get" name="redirect">
-            <button type="submit" name="redirect" value="games">Мои игры</button>
-        </form>
-        <form class="menu-option" method="get" name="redirect">
-            <button class="selected" name="redirect" type="submit" value="creator">Редактор</button>
-        </form>
-        <form class="menu-option" method="get" name="redirect">
-            <button type="submit" name="redirect" value="auth">Вход</button>
-        </form>
+        <a class="menu-option" href="/main">Главная</a>
+        <a class="menu-option" href="/games">Мои игры</a>
+        <a class="menu-option selected" href="/creator">Редактор</a>
+        <a class="menu-option" href="/logout">Выход</a>
     </div>
 </div>
 
 <div style="margin-top: 1%; text-align: center">
 
     <div class="container-item" style="margin: 1% auto auto; width: 70%; height: 55%">
-        <form method="post">
-            <select id="choose_game" name="choose_game" style="margin: 1% auto auto">
+        <form>
+            <select id="currentEditGameId" name="currentEditGameId" style="margin: 1% auto auto">
                 <option disabled selected value="none">Выберите</option>
                 <#list games as option>
                     <option value="${option.id}">${option.name}</option>
@@ -40,114 +37,100 @@
             </select>
 
             <p>
-                <label for="game_name"> <input id="game_name" type="text" name="game_name"
-                                               placeholder="Название" value="${game.name}"
-                                               style="font-family: Trattatello, serif; width: 40%"></label>
+                <label for="gameName"> <input id="gameName" type="text" name="gameName"
+                                              placeholder="Название" value="${(game.name)!""}"
+                                              style="font-family: Trattatello, serif; width: 40%"></label>
             </p>
             <p>
-                <label for="game_description"> <textarea id="game_description" name="game_description"
-                                                         placeholder="Описание"
-                                                         style="font-family: Trattatello, serif; height: 55%; width: 80%">${game.description}</textarea></label>
+                <label for="gameDescription"> <textarea id="gameDescription" name="gameDescription"
+                                                        placeholder="Описание"
+                                                        style="font-family: Trattatello, serif; height: 55%; width: 80%">${(game.description)!""}</textarea></label>
             </p>
-            <button type="submit">Сохранить</button>
+            <button style="width: 50%" onclick="editGame(${(game.id)!"null"})">Сохранить</button>
         </form>
     </div>
 </div>
 
 
 <div class="wrapper-3" style="grid-template-rows: 75% 75% 75%;">
-
     <div class="container-item">
-
-        <form method="get" style="height: 80%">
-
+        <div style="height: 80%">
             <h2>Валюты</h2>
-            <select id="choose_currency" name="choose_currency" style="width: 80%;">
+            <select id="currentEditCurrencyId" name="currentEditCurrencyId" style="width: 80%;">
                 <option value="create" selected>-Создать</option>
             </select>
             <p>
-                <label for="currency_name"> <input id="currency_name" type="text" name="currency_name"
-                                                   placeholder="Название"
-                                                   style="font-family: Trattatello, serif;"></label>
+                <label for="currencyName"> <input id="currencyName" type="text" name="currencyName"
+                                                  placeholder="Название"
+                                                  style="font-family: Trattatello, serif;"></label>
             </p>
             <p>
-                <label for="currency_description"> <textarea id="currency_description" type="text"
-                                                             name="currency_description"
-                                                             placeholder="Описание"
-                                                             style="font-family: Trattatello, serif; height: 60%; width: 80%"></textarea></label>
+                <label for="currencyDescription"> <textarea id="currencyDescription"
+                                                            name="currencyDescription"
+                                                            placeholder="Описание"
+                                                            style="font-family: Trattatello, serif; height: 60%; width: 80%"></textarea></label>
             </p>
-            <button>Сохранить</button>
-
-        </form>
+            <button onclick="editCurrency()">Сохранить</button>
+        </div>
     </div>
 
     <div class="container-item">
-        <form method="get" style="height: 80%;">
+        <div style="height: 80%;">
             <h2>Колоды</h2>
-            <select id="choose_deck" name="choose_deck" style="width: 80%;">
+            <select id="currentEditDeckId" name="currentEditDeckId" style="width: 80%;">
                 <option value="create" selected>-Создать</option>
             </select>
             <p>
-                <input id="deck_name" type="text" name="deck_name"
+                <input id="deckName" type="text" name="deckName"
                        placeholder="Название"
-                       style="font-family: Trattatello, serif;"></label>
+                       style="font-family: Trattatello, serif;">
             </p>
             <p>
-               <textarea id="deck_description" type="text" name="deck_description"
+               <textarea id="deckDescription" type="text" name="deckDescription"
                          placeholder="Описание"
-                         style="font-family: Trattatello, serif; height: 60%; width: 80%"></textarea></label>
+                         style="font-family: Trattatello, serif; height: 60%; width: 80%"></textarea>
             </p>
-            <button>Сохранить</button>
-        </form>
+            <button onclick="editDeck()">Сохранить</button>
+        </div>
     </div>
 
-
     <div class="container-item">
-
-        <form method="get" style="height: 70%;">
-            <h2>Карты</h2>
-            <select id="card_deck" name="card_deck" style="width: 80%;">
-                <option value="none" selected disabled>Выбрать колоду</option>
-            </select>
-            <p>
-                <select id="choose_card" name="choose_card" style="width: 80%;">
-                    <option value="create" selected>-Создать</option>
-                </select></p>
-            <p>
-                <input id="card_name" type="text" name="card_name"
-                       placeholder="Название"
-                       style="font-family: Trattatello, serif;"></label>
-            </p>
-            <p>
-                <textarea id="card_description" type="text" name="card_description"
-                          placeholder="Описание"
-                          style="font-family: Trattatello, serif; height: 25%; width: 80%"></textarea></label>
-            </p>
-            <p style="width: 80%; margin: auto">
-                <select id="currency_of_a_card" name="currency_of_a_card"
-                        style="width: 80%; margin: auto">
-                    <option value="none" selected>Нет валюты</option>
+        <div style="height: 70%;">
+                <h2>Карты</h2>
+                <select id="deckToShowCards" name="deckToShowCards" style="width: 80%;">
+                    <option value="none" selected disabled>Выбрать колоду</option>
                 </select>
-                <label for="card_value"> <input id="card_value" class="dice" min="-100" max="100" type="number"
-                                                name="card_value"
-                                                placeholder="0" style="height: 45px; margin: auto"></label>
+                <p>
+                    <select id="currentEditCardId" name="currentEditCardId" style="width: 80%;">
+                        <option value="create" selected>-Создать</option>
+                    </select>
+                </p>
+                <p>
+                    <input id="cardName" type="text" name="cardName"
+                           placeholder="Название"
+                           style="font-family: Trattatello, serif;">
+                </p>
+                <p>
+                <textarea id="cardDescription" type="text" name="cardDescription"
+                          placeholder="Описание"
+                          style="font-family: Trattatello, serif; height: 25%; width: 80%"></textarea>
+                </p>
+                <p style="width: 80%; margin: auto">
+                    <select id="currencyOfACard" name="currencyOfACard"
+                            style="width: 80%; margin: auto">
+                        <option value="none" selected>Нет валюты</option>
+                    </select>
+                    <label for="cardValue"><input id="cardValue" class="dice" min="-100" max="100" type="number"
+                                                  name="cardValue"
+                                                  placeholder="0" style="height: 45px; margin: auto"></label>
+                </p>
+            <p style="width: 80%; margin: auto">
+                <label for="cardCount"><input id="cardCount" class="dice" min="-100" max="100" type="number"
+                                              name="cardCount" value="1"
+                                              placeholder="Количество дублей в колоде" style="height: 45px; margin: auto"></label>
             </p>
-            <br><br>
-
-<#--                        <table style="width: 80%; margin: auto">-->
-<#--                               <tr>-->
-<#--                                        <td> В колоде:</td>--%>-->
-<#--                                        <td>-->
-<#--                                                <button onclick="removeCard()">-</button>-->
-<#--                                            </td>-->
-<#--                                        <td><label id="card-count">0</label></td>-->
-<#--                                        <td>-->
-<#--                                                <button onclick="addCard()">+</button>-->
-<#--                                            </td>-->
-<#--                                    </tr>-->
-<#--                            </table>-->
-            <button>Сохранить</button>
-        </form>
+                <button onclick="editCard()">Сохранить</button>
+        </div>
     </div>
 </div>
 </body>

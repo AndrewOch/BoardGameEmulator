@@ -57,11 +57,11 @@ public interface GamesService {
 
     List<Game> findGamesByUserId(Long userId);
 
-    Game updateGameInfoById(Long id, String name, String description);
+    void updateGameInfoById(Long id, String name, String description);
 
     Currency updateCurrencyInfoById(Long id, String name, String description);
 
     Deck updateDeckInfoById(Long id, String name, String description);
 
-    Card updateCardInfoById(Long id, String name, String description, Long currencyId, Integer value);
+    Card updateCardInfoById(Long id, String name, String description, Long currencyId, Integer value, Integer copiesCount);
 }

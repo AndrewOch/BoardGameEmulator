@@ -41,6 +41,6 @@ public class SuccessfulAuthenticationHandler implements AuthenticationSuccessHan
                 .build();
 
         authRepository.save(auth);
-        redirectStrategy.sendRedirect(request, response, "/profile");
+        redirectStrategy.sendRedirect(request, response, "/games");
     }
 }

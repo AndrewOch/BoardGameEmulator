@@ -30,6 +30,4 @@ public class Deck {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "deck")
     private List<Card> cards;
-
-   // private ArrayList<Card> waste;
 }

@@ -1,6 +1,8 @@
 package ru.kpfu.itis.models.entities;
 
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -23,6 +25,7 @@ public class Currency {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")
+    @Fetch(value = FetchMode.JOIN)
     private Game game;
 
     @Column(name = "currency_name")

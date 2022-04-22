@@ -14,4 +14,5 @@ public class CardForm {
     private Long currencyId;
     private Integer value;
     private Long deckId;
+    private Integer copiesCount;
 }
