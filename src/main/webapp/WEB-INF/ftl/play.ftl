@@ -6,16 +6,16 @@
     <script src="/resources/javascript/play.js"></script>
 
     <link rel="stylesheet" href="/resources/css/styles.css">
-    <title>Игра</title>
+    <title>${(game.name)!""}</title>
 </head>
-<body>
+<body onload="configureOutPut(${game.decks?size}, ${game.currencies?size})">
 
 <div class="header-bar">
     <div>
         <div class="title"><h1>Эмулятор настольных игр</h1></div>
     </div>
     <div class="menu">
-        <a class="menu-option" href="/main">Главная</a>
+        <a class="menu-option" href="/">Главная</a>
         <a class="menu-option" href="/games">Мои игры</a>
         <a class="menu-option" href="/creator">Редактор</a>
         <a class="menu-option" href="/logout">Выход</a>
@@ -56,50 +56,58 @@
     </div>
     <br>
     <br>
-    <div class="menu"><h2 class="menu-option">Валюты</h2></div>
-    <div class="wrapper-8" id="currenciesContainer">
-        <#list game.currencies as currency>
-            <div class="square">
-                <h3>${currency.name}</h3>
-                <input min="-1000" max="1000" type="number"
-                       placeholder="0"
-                       style="height: 45px; margin: auto auto 10%; width: 60%">
-            </div>
-        </#list>
+    <div id="currenciesBlock">
+        <div class="menu"><h2 class="menu-option">Валюты</h2></div>
+        <div class="wrapper-8" id="currenciesContainer">
+            <#list game.currencies as currency>
+                <div class="square">
+                    <h3>${currency.name}</h3>
+                    <input min="-1000" max="1000" type="number"
+                           placeholder="0"
+                           style="height: 45px; margin: auto auto 10%; width: 60%">
+                </div>
+            </#list>
+        </div>
+        <br>
+        <br>
     </div>
-    <br>
-    <br>
-    <div class="menu"><h2 class="menu-option">Колоды</h2></div>
-    <div class="wrapper-3-decks" id="decksContainer">
-        <#list game.decks as deck>
-        <div class="container-item-card">
-            <h2>${deck.name}</h2>
-            <h3>
-                <p>${deck.description}</p>
-                <p id="deckCount_${deck.id}">Карт: ${deck.cards?size}</p>
-                <p id="wasteCount_${deck.id}">Сброс: 0</p>
-            </h3>
-            <div class="card" id="card_${deck.id}">
-                <h3 id="cardName_${deck.id}"></h3>
-                <h4 id="cardDescription_${deck.id}"></h4>
-                <h4 id="cardValue_${deck.id}"></h4>
-                <h4 id="cardCurrency_${deck.id}"></h4>
-            </div>
-            <table>
-                <tr>
-                    <td>
-                        <button onclick="takeCard(${deck.id})">Взять</button>
-                    </td>
-                    <td>
-                        <button onclick="shuffleDeck(${deck.id})">Перетасовать</button>
-                    </td>
-                </tr>
-            </table>
-
+    <div id="playGroundBlock">
+        <div class="menu"><h2 class="menu-option">Игровое поле</h2></div>
+        <div style="width: 100%; margin: auto; text-align: center;">
+            <img src="" id="playGround" alt="Play Ground" style="width: 97%">
+        </div>
+        <br>
+        <br>
+    </div>
+    <div id="decksBlock">
+        <div class="menu"><h2 class="menu-option">Колоды</h2></div>
+        <div class="wrapper-3-decks" id="decksContainer">
+            <#list game.decks as deck>
+                <div class="container-item-card">
+                    <h2>${deck.name}</h2>
+                    <div class="big-text" style="padding-left: 5%; padding-right: 5%">${deck.description}</div>
+                    <div class="big-text" id="deckCount_${deck.id}">Карт: ${deck.cards?size}</div>
+                    <div class="big-text" id="wasteCount_${deck.id}">Сброс: 0</div>
+                    <div class="card" id="card_${deck.id}">
+                        <h3 id="cardName_${deck.id}"></h3>
+                        <h4 id="cardDescription_${deck.id}"></h4>
+                        <h4 id="cardValue_${deck.id}"></h4>
+                        <h4 id="cardCurrency_${deck.id}"></h4>
+                    </div>
+                    <table>
+                        <tr>
+                            <td>
+                                <button onclick="takeCard(${deck.id})">Взять</button>
+                            </td>
+                            <td>
+                                <button onclick="shuffleDeck(${deck.id})">Перетасовать</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </#list>
         </div>
     </div>
-    </#list>
-</div>
 </div>
 </body>
 </html>

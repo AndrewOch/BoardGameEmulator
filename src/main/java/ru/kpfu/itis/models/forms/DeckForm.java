@@ -1,4 +1,4 @@
-package ru.kpfu.itis.models.form;
+package ru.kpfu.itis.models.forms;
 
 import lombok.*;
 

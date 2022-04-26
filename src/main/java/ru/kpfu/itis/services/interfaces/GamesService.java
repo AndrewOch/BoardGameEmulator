@@ -1,9 +1,9 @@
 package ru.kpfu.itis.services.interfaces;
 
-import ru.kpfu.itis.models.form.CardForm;
-import ru.kpfu.itis.models.form.CurrencyForm;
-import ru.kpfu.itis.models.form.DeckForm;
-import ru.kpfu.itis.models.form.GameForm;
+import ru.kpfu.itis.models.forms.CardForm;
+import ru.kpfu.itis.models.forms.CurrencyForm;
+import ru.kpfu.itis.models.forms.DeckForm;
+import ru.kpfu.itis.models.forms.GameForm;
 import ru.kpfu.itis.models.entities.Card;
 import ru.kpfu.itis.models.entities.Currency;
 import ru.kpfu.itis.models.entities.Deck;

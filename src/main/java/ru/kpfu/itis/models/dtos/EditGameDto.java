@@ -1,6 +1,7 @@
-package ru.kpfu.itis.dto;
+package ru.kpfu.itis.models.dtos;
 
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,4 +32,6 @@ public class EditGameDto {
     private String cardCurrencyId;
     private String cardValue;
     private String cardCopiesCount;
+
+    private MultipartFile playGroundFile;
 }

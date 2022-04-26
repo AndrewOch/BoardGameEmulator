@@ -33,7 +33,4 @@ public class User {
 
     @Column(name = "createdat")
     private Timestamp createdAt;
-
-//    @OneToMany(mappedBy = "user")
-//    private List<Auth> auth;
 }

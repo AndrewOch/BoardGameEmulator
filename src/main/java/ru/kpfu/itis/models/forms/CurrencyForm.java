@@ -1,7 +1,6 @@
-package ru.kpfu.itis.models.form;
+package ru.kpfu.itis.models.forms;
 
 import lombok.*;
-import ru.kpfu.itis.models.entities.User;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -9,8 +8,8 @@ import ru.kpfu.itis.models.entities.User;
 @Setter
 @Getter
 @EqualsAndHashCode
-public class GameForm {
+public class CurrencyForm {
     private String name;
     private String description;
-    private User user;
+    private Long gameId;
 }

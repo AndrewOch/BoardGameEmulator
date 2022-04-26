@@ -5,6 +5,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Data
@@ -28,7 +29,6 @@ public class Game {
     private String description;
 
     @ManyToMany
-//            (fetch = FetchType.EAGER)
     @JoinTable(
             name = "game_decks",
             joinColumns = @JoinColumn(name = "game_id"),
@@ -47,5 +47,8 @@ public class Game {
     )
     @Fetch(value = FetchMode.JOIN)
     private List<User> user;
+
+    @Column(name = "created_at")
+    private Timestamp createdAt;
 
 }

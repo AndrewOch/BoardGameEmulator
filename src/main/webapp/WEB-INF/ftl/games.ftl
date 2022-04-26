@@ -14,7 +14,7 @@
         <div class="title"><h1>Эмулятор настольных игр</h1></div>
     </div>
     <div class="menu">
-        <a class="menu-option" href="/main">Главная</a>
+        <a class="menu-option" href="/">Главная</a>
         <a class="menu-option selected" href="/games">Мои игры</a>
         <a class="menu-option" href="/creator">Редактор</a>
         <a class="menu-option" href="/logout">Выход</a>

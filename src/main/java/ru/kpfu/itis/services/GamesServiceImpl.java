@@ -3,19 +3,17 @@ package ru.kpfu.itis.services;
 import org.hibernate.LazyInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.kpfu.itis.models.entities.*;
-import ru.kpfu.itis.models.form.CardForm;
-import ru.kpfu.itis.models.form.CurrencyForm;
-import ru.kpfu.itis.models.form.DeckForm;
-import ru.kpfu.itis.models.form.GameForm;
+import ru.kpfu.itis.models.forms.CardForm;
+import ru.kpfu.itis.models.forms.CurrencyForm;
+import ru.kpfu.itis.models.forms.DeckForm;
+import ru.kpfu.itis.models.forms.GameForm;
 import ru.kpfu.itis.repositories.*;
 import ru.kpfu.itis.services.interfaces.GamesService;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +38,7 @@ public class GamesServiceImpl implements GamesService {
         Game game = new Game();
         game.setName(gameForm.getName());
         game.setDescription(gameForm.getDescription());
+        game.setCreatedAt(Timestamp.from(Instant.now()));
         game = gamesRepository.save(game);
         linkGameToUser(game.getId(), gameForm.getUser().getId());
         return game;
@@ -119,7 +118,21 @@ public class GamesServiceImpl implements GamesService {
 
     @Override
     public List<Game> findAllGames() {
-        return gamesRepository.findAll();
+        List<Game> games = gamesRepository.findAll();
+
+        for (Game game : games) {
+            List<Deck> decks = new ArrayList<>();
+            for (Object[] array : decksRepository.findDecksByGameId(game.getId())) {
+                Deck deck = new Deck();
+                deck.setId((Long) array[0]);
+                deck.setName((String) array[1]);
+                deck.setDescription((String) array[2]);
+                decks.add(deck);
+            }
+            game.setDecks(decks);
+            game.setCurrencies(currencyRepository.findAllByGameId(game.getId()));
+        }
+        return games;
     }
 
     @Override

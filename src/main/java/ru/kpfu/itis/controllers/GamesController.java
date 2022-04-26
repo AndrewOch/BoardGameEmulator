@@ -1,32 +1,37 @@
 package ru.kpfu.itis.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import ru.kpfu.itis.dto.EditGameDto;
-import ru.kpfu.itis.dto.GameDto;
-import ru.kpfu.itis.dto.PlayDto;
+import ru.kpfu.itis.models.dtos.EditGameDto;
+import ru.kpfu.itis.models.dtos.GameDto;
+import ru.kpfu.itis.models.dtos.PlayDto;
 import ru.kpfu.itis.models.entities.*;
 import ru.kpfu.itis.models.entities.Currency;
-import ru.kpfu.itis.models.form.CardForm;
-import ru.kpfu.itis.models.form.CurrencyForm;
-import ru.kpfu.itis.models.form.DeckForm;
-import ru.kpfu.itis.models.form.GameForm;
-import ru.kpfu.itis.services.CookieService;
+import ru.kpfu.itis.models.forms.CardForm;
+import ru.kpfu.itis.models.forms.CurrencyForm;
+import ru.kpfu.itis.models.forms.DeckForm;
+import ru.kpfu.itis.models.forms.GameForm;
 import ru.kpfu.itis.services.interfaces.GamesService;
 import ru.kpfu.itis.services.interfaces.UsersService;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 @Controller
 public class GamesController {
@@ -34,10 +39,11 @@ public class GamesController {
     @Autowired
     @Qualifier(value = "gamesService")
     private GamesService gamesService;
-    @Autowired
-    private UsersService usersService;
 
     private ArrayList<PlayDeckPair> decks;
+
+    @Value("${custom.file.storage}")
+    private String filePath;
 
     @RequestMapping(method = RequestMethod.GET, value = "/games")
     private ModelAndView gamesPage(Authentication authentication, GameDto gameDto) throws ServletException, IOException {
@@ -72,7 +78,7 @@ public class GamesController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/games")
-    private ModelAndView createGame(GameDto gameDto, Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+    private ModelAndView createGame(GameDto gameDto, Authentication authentication) {
         if (authentication == null) {
             return new ModelAndView("redirect:/auth");
         }
@@ -116,8 +122,9 @@ public class GamesController {
         return modelAndView;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/creator")
-    private ModelAndView editGame(EditGameDto editGameDto, Authentication authentication, HttpServletResponse response) throws IOException, ServletException {
+    @PostMapping("/creator")
+//    @RequestMapping(value = "/creator", method = RequestMethod.POST)
+    private ModelAndView editGame(EditGameDto editGameDto, Authentication authentication, HttpServletResponse response, MultipartFile playGroundFile) throws IOException, ServletException {
         ModelAndView modelAndView = new ModelAndView();
         ObjectMapper objectMapper = new ObjectMapper();
         if (authentication == null) {
@@ -130,10 +137,10 @@ public class GamesController {
         Game game;
         modelAndView.addObject(games);
 
-        String string = editGameDto.getCurrentEditGameId();
+        String editGameId = editGameDto.getCurrentEditGameId();
         Long currentEditGameId;
-        if (string != null && !string.equals("false")) {
-            currentEditGameId = Long.valueOf(string);
+        if (editGameId != null && !editGameId.equals("false")) {
+            currentEditGameId = Long.valueOf(editGameId);
             modelAndView.addObject("currentEditGameId", currentEditGameId);
         } else {
             return null;
@@ -253,12 +260,32 @@ public class GamesController {
                     json = objectMapper.writeValueAsString(card);
                 }
             }
+            case "setPlayGround" -> {
+                MultipartFile f = editGameDto.getPlayGroundFile();
+                if (f != null) {
+                    json = objectMapper.writeValueAsString(f);
+                }
+            }
         }
         System.out.println(json);
         response.setContentType("application/json");
         response.getWriter().println(json);
         return null;
     }
+
+//    @PostMapping(value = "/files")
+//    public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file) {
+////        logger.info("Загружаем файл");
+//        String fileName = file.getOriginalFilename();
+//        try {
+//            file.transferTo(new File(filePath + fileName));
+//        } catch (IOException e) {
+////            logger.error("Произошла ошибка во время загрузки файла");
+//            return ResponseEntity.internalServerError().build();
+//        }
+////        logger.info("Файл успешно загружен");
+//        return ResponseEntity.ok("The file was successfully uploaded");
+//    }
 
     @RequestMapping(method = RequestMethod.GET, value = "/play")
     private ModelAndView playGamePage(Long currentPlayGameId) {
@@ -267,14 +294,22 @@ public class GamesController {
             modelAndView.setViewName("redirect:/games");
             return modelAndView;
         }
-
         Game game = gamesService.findGameById(currentPlayGameId);
         decks = new ArrayList<>();
-        for (Deck deck : game.getDecks()) {
+        List<Deck> deckList = game.getDecks();
+        for (Deck deck : deckList) {
+            List<Card> cardCopies = new ArrayList<>();
             PlayDeckPair playDeckPair = new PlayDeckPair();
             playDeckPair.setDeckId(deck.getId());
             Stack<Card> cards = new Stack<>();
+            deck.getCards().forEach(card -> {
+                for (int i = 0; i < card.getCopiesCount() - 1; i++) {
+                    cardCopies.add(card);
+                }
+            });
             cards.addAll(deck.getCards());
+            cards.addAll(cardCopies);
+            deck.setCards(cards);
             playDeckPair.setDeck(cards);
             playDeckPair.setWaste(new Stack<>());
             decks.add(playDeckPair);
@@ -293,7 +328,6 @@ public class GamesController {
             modelAndView.setViewName("redirect:/auth");
             return modelAndView;
         }
-        User user = (User) authentication.getPrincipal();
 
         String param = playDto.getDeckToTakeCardFrom();
         if (param != null) {

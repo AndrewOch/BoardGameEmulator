@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
-import ru.kpfu.itis.dto.SignUpDto;
+import ru.kpfu.itis.models.dtos.SignUpDto;
 import ru.kpfu.itis.services.interfaces.UsersService;
 
 import java.util.regex.Pattern;

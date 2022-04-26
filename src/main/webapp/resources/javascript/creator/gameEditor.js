@@ -3,7 +3,6 @@ function getUrlParameter(sParam) {
         sURLVariables = sPageURL.split('&'),
         sParameterName,
         i;
-
     for (i = 0; i < sURLVariables.length; i++) {
         sParameterName = sURLVariables[i].split('=');
 
@@ -29,6 +28,11 @@ $(document).ready(function () {
     if (editGameId != null) {
         chooseGame(editGameId)
     }
+
+    $("#file-upload-form").on("submit", function (e) {
+        e.preventDefault();
+        setPlayGround()
+    })
 });
 
 function chooseGame(id) {
@@ -119,6 +123,46 @@ function editGame(id) {
             }
             document.getElementById('gameName').value = game.name;
             document.getElementById('gameDescription').value = game.description;
+        },
+        error: function (response) {
+        }
+    })
+}
+
+
+function setPlayGround() {
+    let gameOption = $('#currentEditGameId option:selected');
+    let gameId;
+    if (gameOption.val() !== 'none') {
+        gameId = gameOption.val()
+    }
+
+    let data = new FormData()
+    data.append('editingAction', 'setPlayGround')
+    data.append('currentEditGameId', gameId)
+
+    var files = $('#playGroundFile')[0].files;
+    if(files.length > 0 ) {
+        data.append('playGroundFile', files[0]);
+    }
+
+    for (var pair of data.entries()) {
+        console.log(pair[0]+ ', ' + pair[1]);
+    }
+
+    $.ajax({
+        url: '/files',
+        type: 'post',
+        // dataType: 'json',
+        enctype: 'multipart/form-data',
+        data: data,
+        processData: false,
+        contentType: false,
+        success: function (fileSrc) {
+            if (fileSrc == null) {
+                return;
+            }
+            document.getElementById('playGround').src = fileSrc;
         },
         error: function (response) {
         }

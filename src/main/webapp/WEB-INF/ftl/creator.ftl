@@ -18,7 +18,7 @@
         <div class="title"><h1>Эмулятор настольных игр</h1></div>
     </div>
     <div class="menu">
-        <a class="menu-option" href="/main">Главная</a>
+        <a class="menu-option" href="/">Главная</a>
         <a class="menu-option" href="/games">Мои игры</a>
         <a class="menu-option selected" href="/creator">Редактор</a>
         <a class="menu-option" href="/logout">Выход</a>
@@ -96,42 +96,51 @@
 
     <div class="container-item">
         <div style="height: 70%;">
-                <h2>Карты</h2>
-                <select id="deckToShowCards" name="deckToShowCards" style="width: 80%;">
-                    <option value="none" selected disabled>Выбрать колоду</option>
+            <h2>Карты</h2>
+            <select id="deckToShowCards" name="deckToShowCards" style="width: 80%;">
+                <option value="none" selected disabled>Выбрать колоду</option>
+            </select>
+            <p>
+                <select id="currentEditCardId" name="currentEditCardId" style="width: 80%;">
+                    <option value="create" selected>-Создать</option>
                 </select>
-                <p>
-                    <select id="currentEditCardId" name="currentEditCardId" style="width: 80%;">
-                        <option value="create" selected>-Создать</option>
-                    </select>
-                </p>
-                <p>
-                    <input id="cardName" type="text" name="cardName"
-                           placeholder="Название"
-                           style="font-family: Trattatello, serif;">
-                </p>
-                <p>
+            </p>
+            <p>
+                <input id="cardName" type="text" name="cardName"
+                       placeholder="Название"
+                       style="font-family: Trattatello, serif;">
+            </p>
+            <p>
                 <textarea id="cardDescription" type="text" name="cardDescription"
                           placeholder="Описание"
                           style="font-family: Trattatello, serif; height: 25%; width: 80%"></textarea>
-                </p>
-                <p style="width: 80%; margin: auto">
-                    <select id="currencyOfACard" name="currencyOfACard"
-                            style="width: 80%; margin: auto">
-                        <option value="none" selected>Нет валюты</option>
-                    </select>
-                    <label for="cardValue"><input id="cardValue" class="dice" min="-100" max="100" type="number"
-                                                  name="cardValue"
-                                                  placeholder="0" style="height: 45px; margin: auto"></label>
-                </p>
+            </p>
+            <p style="width: 80%; margin: auto">
+                <select id="currencyOfACard" name="currencyOfACard"
+                        style="width: 80%; margin: auto">
+                    <option value="none" selected>Нет валюты</option>
+                </select>
+                <label for="cardValue"><input id="cardValue" class="dice" min="-100" max="100" type="number"
+                                              name="cardValue"
+                                              placeholder="0" style="height: 45px; margin: auto"></label>
+            </p>
             <p style="width: 80%; margin: auto">
                 <label for="cardCount"><input id="cardCount" class="dice" min="-100" max="100" type="number"
                                               name="cardCount" value="1"
-                                              placeholder="Количество дублей в колоде" style="height: 45px; margin: auto"></label>
+                                              placeholder="Количество дублей в колоде"
+                                              style="height: 45px; margin: auto"></label>
             </p>
-                <button onclick="editCard()">Сохранить</button>
+            <button onclick="editCard()">Сохранить</button>
         </div>
     </div>
+</div>
+<h2>Игровое поле</h2>
+<div style="width: 100%; margin: auto; text-align: center;">
+    <form id="file-upload-form" enctype="multipart/form-data" method="post">
+        <input type="file" id="playGroundFile" title="Выбрать файл" style="width: 30%">
+        <button type="submit">Сохранить</button>
+    </form>
+    <img src="/resources/images/playGroundPlaceholder.png" id="playGround" alt="Play Ground" style="width: 97%">
 </div>
 </body>
 </html>

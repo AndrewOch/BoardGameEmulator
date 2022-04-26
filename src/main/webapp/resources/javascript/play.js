@@ -1,19 +1,3 @@
-function getUrlParameter(sParam) {
-    let sPageURL = window.location.search.substring(1),
-        sURLVariables = sPageURL.split('&'),
-        sParameterName,
-        i;
-
-    for (i = 0; i < sURLVariables.length; i++) {
-        sParameterName = sURLVariables[i].split('=');
-
-        if (sParameterName[0] === sParam) {
-            return sParameterName[1];
-        }
-    }
-    return false;
-}
-
 function throwDices() {
     let firstMax = document.getElementById('dice1').value
     let secondMax = document.getElementById('dice2').value
@@ -30,6 +14,25 @@ function throwDices() {
 function getRandomDiceValue(max) {
     if (max < 1) return 0
     return Math.floor(Math.random() * max) + 1;
+}
+
+$(document).ready(function () {
+    configureOutPut()
+});
+
+function configureOutPut(decksCount, currenciesCount) {
+    if (decksCount == null || currenciesCount == null) {
+        return;
+    }
+    if (decksCount === 0) {
+        document.getElementById('decksBlock').hidden = true
+    }
+    if (currenciesCount === 0) {
+        document.getElementById('currenciesBlock').hidden = true
+    }
+    // if (game == 0) {
+    //     document.getElementById('playGroundBlock').disabled = true
+    // }
 }
 
 function takeCard(deckId) {
@@ -61,7 +64,7 @@ function takeCard(deckId) {
             document.getElementById('cardName_' + id).innerText = card.name;
             document.getElementById('cardDescription_' + id).innerText = card.description;
             document.getElementById('cardValue_' + id).innerText = card.value;
-            document.getElementById('cardCurrency' + id).innerText = card.currency;
+            document.getElementById('cardCurrency' + id).innerText = card.currency.name;
 
         },
         error: function (response) {

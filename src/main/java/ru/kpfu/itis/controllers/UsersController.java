@@ -4,17 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import ru.kpfu.itis.dto.AuthDto;
-import ru.kpfu.itis.dto.SignUpDto;
+import ru.kpfu.itis.models.dtos.AuthDto;
+import ru.kpfu.itis.models.dtos.SignUpDto;
 import ru.kpfu.itis.models.entities.User;
-import ru.kpfu.itis.models.form.UserForm;
+import ru.kpfu.itis.models.forms.UserForm;
 import ru.kpfu.itis.services.interfaces.UsersService;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.util.UUID;
 
 @Controller
 public class UsersController {

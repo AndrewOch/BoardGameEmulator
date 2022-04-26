@@ -1,7 +1,7 @@
 package ru.kpfu.itis.services.interfaces;
 
-import ru.kpfu.itis.dto.AuthDto;
-import ru.kpfu.itis.models.form.UserForm;
+import ru.kpfu.itis.models.dtos.AuthDto;
+import ru.kpfu.itis.models.forms.UserForm;
 import ru.kpfu.itis.models.entities.User;
 
 import javax.servlet.http.Cookie;
