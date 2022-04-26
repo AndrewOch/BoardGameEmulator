@@ -151,7 +151,7 @@ function setPlayGround() {
     }
 
     $.ajax({
-        url: '/files',
+        url: '/creator',
         type: 'post',
         // dataType: 'json',
         enctype: 'multipart/form-data',
