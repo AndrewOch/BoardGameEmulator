@@ -12,7 +12,8 @@ import ru.kpfu.itis.models.entities.User;
 import java.util.List;
 import java.util.Optional;
 
-@Repository @Transactional
+@Repository
+@Transactional
 public interface GamesRepository extends JpaRepository<Game, Long> {
 
     @Query("SELECT g.id, g.name, g.description FROM Game g INNER JOIN UserGames u_g ON g.id = u_g.gameId INNER JOIN User u ON u_g.userId = u.id WHERE u.id=?1")
@@ -21,4 +22,8 @@ public interface GamesRepository extends JpaRepository<Game, Long> {
     @Modifying
     @Query("update Game as g set g.name = ?2, g.description = ?3 where g.id = ?1")
     void updateGameInfoById(Long id, String name, String description);
+
+    @Modifying
+    @Query("update Game as g set g.playGround = ?2 where g.id = ?1")
+    void setGamePlayGround(Long id, String fileName);
 }

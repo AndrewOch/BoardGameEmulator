@@ -20,7 +20,7 @@ $(document).ready(function () {
     configureOutPut()
 });
 
-function configureOutPut(decksCount, currenciesCount) {
+function configureOutPut(decksCount, currenciesCount, playGround) {
     if (decksCount == null || currenciesCount == null) {
         return;
     }
@@ -30,9 +30,13 @@ function configureOutPut(decksCount, currenciesCount) {
     if (currenciesCount === 0) {
         document.getElementById('currenciesBlock').hidden = true
     }
-    // if (game == 0) {
-    //     document.getElementById('playGroundBlock').disabled = true
-    // }
+    if (playGround != null && playGround !== "") {
+        document.getElementById('currenciesBlock').hidden = false
+        document.getElementById('playGround').src = "/uploads/" + playGround
+    } else {
+        document.getElementById('currenciesBlock').hidden = true
+        document.getElementById('playGround').src = "/resources/images/playGroundPlaceholder.png"
+    }
 }
 
 function takeCard(deckId) {

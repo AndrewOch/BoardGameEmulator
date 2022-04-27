@@ -14,7 +14,6 @@ function getUrlParameter(sParam) {
 }
 
 $(document).ready(function () {
-
     $('#currentEditGameId').change(function () {
         let option = $('#currentEditGameId option:selected');
         let id;
@@ -34,6 +33,14 @@ $(document).ready(function () {
         setPlayGround()
     })
 });
+
+function configureOutPut(playGround) {
+    if (playGround != null && playGround !== "") {
+        document.getElementById('playGround').src = "/uploads/" + playGround
+    } else {
+        document.getElementById('playGround').src = "/resources/images/playGroundPlaceholder.png"
+    }
+}
 
 function chooseGame(id) {
 
@@ -142,18 +149,18 @@ function setPlayGround() {
     data.append('currentEditGameId', gameId)
 
     var files = $('#playGroundFile')[0].files;
-    if(files.length > 0 ) {
+    if (files.length > 0) {
         data.append('playGroundFile', files[0]);
     }
 
     for (var pair of data.entries()) {
-        console.log(pair[0]+ ', ' + pair[1]);
+        console.log(pair[0] + ', ' + pair[1]);
     }
 
     $.ajax({
         url: '/creator',
         type: 'post',
-        // dataType: 'json',
+        dataType: 'json',
         enctype: 'multipart/form-data',
         data: data,
         processData: false,

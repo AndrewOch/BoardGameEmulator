@@ -10,8 +10,8 @@
 
     <link rel="stylesheet" href="/resources/css/styles.css">
     <title>Редактор</title>
-</head>
-<body>
+</head >
+<body onload="configureOutPut('${game.playGround!""}')">
 
 <div class="header-bar">
     <div>

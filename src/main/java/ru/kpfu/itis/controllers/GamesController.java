@@ -23,6 +23,7 @@ import ru.kpfu.itis.models.forms.CardForm;
 import ru.kpfu.itis.models.forms.CurrencyForm;
 import ru.kpfu.itis.models.forms.DeckForm;
 import ru.kpfu.itis.models.forms.GameForm;
+import ru.kpfu.itis.services.EditGameService;
 import ru.kpfu.itis.services.interfaces.GamesService;
 import ru.kpfu.itis.services.interfaces.UsersService;
 
@@ -40,10 +41,10 @@ public class GamesController {
     @Qualifier(value = "gamesService")
     private GamesService gamesService;
 
-    private ArrayList<PlayDeckPair> decks;
+    @Autowired
+    private EditGameService editGameService;
 
-    @Value("${custom.file.storage}")
-    private String filePath;
+    private ArrayList<PlayDeckPair> decks;
 
     @RequestMapping(method = RequestMethod.GET, value = "/games")
     private ModelAndView gamesPage(Authentication authentication, GameDto gameDto) throws ServletException, IOException {
@@ -123,7 +124,6 @@ public class GamesController {
     }
 
     @PostMapping("/creator")
-//    @RequestMapping(value = "/creator", method = RequestMethod.POST)
     private ModelAndView editGame(EditGameDto editGameDto, Authentication authentication, HttpServletResponse response, MultipartFile playGroundFile) throws IOException, ServletException {
         ModelAndView modelAndView = new ModelAndView();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -131,10 +131,8 @@ public class GamesController {
             modelAndView.setViewName("redirect:/auth");
             return modelAndView;
         }
-
         User user = (User) authentication.getPrincipal();
         List<Game> games = gamesService.findGamesByUserId(user.getId());
-        Game game;
         modelAndView.addObject(games);
 
         String editGameId = editGameDto.getCurrentEditGameId();
@@ -145,147 +143,12 @@ public class GamesController {
         } else {
             return null;
         }
-        String json = "";
-        switch (editGameDto.getEditingAction()) {
-            case "chooseGame" -> {
-                game = gamesService.findGameById(currentEditGameId);
-                json = objectMapper.writeValueAsString(game);
-            }
-            case "editGame" -> {
-                String gameName = editGameDto.getGameName();
-                String gameDescription = editGameDto.getGameDescription();
-                gamesService.updateGameInfoById(currentEditGameId, gameName, gameDescription);
-                game = gamesService.findGameById(currentEditGameId);
-                json = objectMapper.writeValueAsString(game);
-            }
-            case "chooseCurrency" -> {
-                String currentEditCurrencyId = editGameDto.getCurrentEditCurrencyId();
-                if (currentEditCurrencyId != null) {
-                    Currency currency = gamesService.findCurrencyById(Long.valueOf(currentEditCurrencyId));
-                    json = objectMapper.writeValueAsString(currency);
-                }
-            }
-            case "editCurrency" -> {
-                String currentEditCurrencyId = editGameDto.getCurrentEditCurrencyId();
-                String currencyName = editGameDto.getCurrencyName();
-                String currencyDescription = editGameDto.getCurrencyDescription();
-                if (currentEditCurrencyId != null && currencyName != null && currencyDescription != null) {
-                    Currency currency = gamesService.updateCurrencyInfoById(Long.valueOf(currentEditCurrencyId), currencyName, currencyDescription);
-                    json = objectMapper.writeValueAsString(currency);
-                }
-            }
-            case "createCurrency" -> {
-                String currencyName = editGameDto.getCurrencyName();
-                String currencyDescription = editGameDto.getCurrencyDescription();
-                if (currencyName != null && currencyDescription != null) {
-                    CurrencyForm currencyForm = new CurrencyForm(currencyName, currencyDescription, currentEditGameId);
-                    Currency currency = gamesService.addCurrency(currencyForm);
-                    json = objectMapper.writeValueAsString(currency);
-                }
-            }
-            case "chooseDeck" -> {
-                String currentEditDeckId = editGameDto.getCurrentEditDeckId();
-                if (currentEditDeckId != null && !currentEditDeckId.equals("create")) {
-                    Deck deck = gamesService.findDeckById(Long.valueOf(currentEditDeckId));
-                    json = objectMapper.writeValueAsString(deck);
-                }
-            }
-            case "editDeck" -> {
-                String currentEditDeckId = editGameDto.getCurrentEditDeckId();
-                String deckName = editGameDto.getDeckName();
-                String deckDescription = editGameDto.getDeckDescription();
-                if (currentEditDeckId != null) {
-                    Deck deck = gamesService.updateDeckInfoById(Long.valueOf(currentEditDeckId), deckName, deckDescription);
-                    json = objectMapper.writeValueAsString(deck);
-                }
-            }
-            case "createDeck" -> {
-                String deckName = editGameDto.getDeckName();
-                String deckDescription = editGameDto.getDeckDescription();
-                DeckForm deckForm = new DeckForm(deckName, deckDescription);
-                Deck deck = gamesService.addDeck(deckForm, currentEditGameId);
-                json = objectMapper.writeValueAsString(deck);
-            }
-            case "chooseDeckOfCards" -> {
-                String deckToShowCards = editGameDto.getDeckToShowCards();
-                if (deckToShowCards != null) {
-                    List<Card> cards = gamesService.findCardsByDeckId(Long.valueOf(deckToShowCards));
-                    json = objectMapper.writeValueAsString(cards);
-                }
-            }
-            case "chooseCard" -> {
-                String deckToShowCards = editGameDto.getDeckToShowCards();
-                String currentEditCardId = editGameDto.getCurrentEditCardId();
-                if (deckToShowCards != null && currentEditCardId != null) {
-                    Card card = gamesService.findCardById(Long.valueOf(currentEditCardId));
-                    json = objectMapper.writeValueAsString(card);
-                }
-            }
-            case "editCard" -> {
-                String deckToShowCards = editGameDto.getDeckToShowCards();
-                String currentEditCardId = editGameDto.getCurrentEditCardId();
-                String cardName = editGameDto.getCardName();
-                String cardDescription = editGameDto.getCardDescription();
-                String cardCurrencyIdString = editGameDto.getCardCurrencyId();
-                String cardValue = editGameDto.getCardValue();
-                String copiesCount = editGameDto.getCardCopiesCount();
-                Long cardCurrencyId = null;
-                if (cardCurrencyIdString != null) {
-                    cardCurrencyId = Long.valueOf(cardCurrencyIdString);
-                }
-                if (deckToShowCards != null && currentEditCardId != null) {
-                    Card card = gamesService.updateCardInfoById(Long.valueOf(currentEditCardId), cardName, cardDescription, cardCurrencyId, Integer.valueOf(cardValue), Integer.valueOf(copiesCount));
-                    json = objectMapper.writeValueAsString(card);
-                }
-            }
-            case "createCard" -> {
-                String deckToShowCards = editGameDto.getDeckToShowCards();
-                String cardName = editGameDto.getCardName();
-                String cardDescription = editGameDto.getCardDescription();
-                String cardCurrencyId = editGameDto.getCardCurrencyId();
-                String cardValue = editGameDto.getCardValue();
-                String copiesCount = editGameDto.getCardCopiesCount();
-                if (deckToShowCards != null) {
-                    CardForm cardForm = CardForm.builder()
-                            .name(cardName)
-                            .description(cardDescription)
-                            .value(Integer.valueOf(cardValue))
-                            .deckId(Long.valueOf(deckToShowCards))
-                            .copiesCount(Integer.valueOf(copiesCount))
-                            .build();
-                    if (cardCurrencyId != null) {
-                        cardForm.setCurrencyId(Long.valueOf(cardCurrencyId));
-                    }
-                    Card card = gamesService.addCard(cardForm);
-                    json = objectMapper.writeValueAsString(card);
-                }
-            }
-            case "setPlayGround" -> {
-                MultipartFile f = editGameDto.getPlayGroundFile();
-                if (f != null) {
-                    json = objectMapper.writeValueAsString(f);
-                }
-            }
-        }
+        String json = editGameService.editGame(editGameDto);
         System.out.println(json);
         response.setContentType("application/json");
         response.getWriter().println(json);
         return null;
     }
-
-//    @PostMapping(value = "/files")
-//    public ResponseEntity<String> uploadFile(@RequestParam MultipartFile file) {
-////        logger.info("Загружаем файл");
-//        String fileName = file.getOriginalFilename();
-//        try {
-//            file.transferTo(new File(filePath + fileName));
-//        } catch (IOException e) {
-////            logger.error("Произошла ошибка во время загрузки файла");
-//            return ResponseEntity.internalServerError().build();
-//        }
-////        logger.info("Файл успешно загружен");
-//        return ResponseEntity.ok("The file was successfully uploaded");
-//    }
 
     @RequestMapping(method = RequestMethod.GET, value = "/play")
     private ModelAndView playGamePage(Long currentPlayGameId) {

@@ -51,4 +51,6 @@ public class Game {
     @Column(name = "created_at")
     private Timestamp createdAt;
 
+    @Column(name = "play_ground")
+    private String playGround;
 }

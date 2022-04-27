@@ -21,6 +21,8 @@ public interface GamesService {
 
     Currency addCurrency(CurrencyForm currencyForm);
 
+    void setGamePlayGround(Long id, String fileName);
+
     void removeGame(Long gameId);
 
     void removeDeck(Long deckId);

@@ -8,8 +8,7 @@
     <link rel="stylesheet" href="/resources/css/styles.css">
     <title>${(game.name)!""}</title>
 </head>
-<body onload="configureOutPut(${game.decks?size}, ${game.currencies?size})">
-
+<body onload="configureOutPut(${game.decks?size}, ${game.currencies?size}, '${game.playGround!""}')">
 <div class="header-bar">
     <div>
         <div class="title"><h1>Эмулятор настольных игр</h1></div>
@@ -72,11 +71,11 @@
         <br>
     </div>
     <div id="playGroundBlock">
+        <br>
         <div class="menu"><h2 class="menu-option">Игровое поле</h2></div>
         <div style="width: 100%; margin: auto; text-align: center;">
             <img src="" id="playGround" alt="Play Ground" style="width: 97%">
         </div>
-        <br>
         <br>
     </div>
     <div id="decksBlock">

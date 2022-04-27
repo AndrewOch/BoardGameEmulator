@@ -82,6 +82,11 @@ public class GamesServiceImpl implements GamesService {
     }
 
     @Override
+    public void setGamePlayGround(Long id, String fileName) {
+        gamesRepository.setGamePlayGround(id, fileName);
+    }
+
+    @Override
     public void removeGame(Long gameId) {
 
     }
