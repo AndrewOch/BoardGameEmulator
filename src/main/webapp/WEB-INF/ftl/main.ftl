@@ -1,12 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
-
     <link rel="stylesheet" href="/resources/css/styles.css">
     <title>Эмулятор настольных игр</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.js"
-            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-    <script src="/resources/javascript/chat.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -58,5 +54,9 @@
         </#list>
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<script src="/resources/javascript/chat.js"></script>
 </body>
 </html>

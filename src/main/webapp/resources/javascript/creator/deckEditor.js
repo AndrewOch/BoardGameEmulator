@@ -1,5 +1,4 @@
 $(document).ready(function () {
-
     $('#currentEditDeckId').change(function () {
         chooseDeck()
     })
@@ -7,7 +6,6 @@ $(document).ready(function () {
 
 
 function chooseDeck() {
-
     let option = $('#currentEditDeckId option:selected');
     let id;
     if (option.val() !== 'none') {
@@ -18,7 +16,6 @@ function chooseDeck() {
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     $.ajax({
         url: '/creator',
         method: 'post',
@@ -56,10 +53,8 @@ function editDeck() {
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     let deckName = document.getElementById('deckName').value
     let deckDescription = document.getElementById('deckDescription').value
-
     $.ajax({
         url: '/creator',
         method: 'post',
@@ -86,16 +81,13 @@ function editDeck() {
 
 
 function createDeck() {
-
     let deckName = document.getElementById('deckName').value
     let deckDescription = document.getElementById('deckDescription').value
-
     let gameOption = $('#currentEditGameId option:selected');
     let gameId;
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     $.ajax({
         url: '/creator',
         method: 'post',

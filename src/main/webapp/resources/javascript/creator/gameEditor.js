@@ -1,18 +1,3 @@
-function getUrlParameter(sParam) {
-    let sPageURL = window.location.search.substring(1),
-        sURLVariables = sPageURL.split('&'),
-        sParameterName,
-        i;
-    for (i = 0; i < sURLVariables.length; i++) {
-        sParameterName = sURLVariables[i].split('=');
-
-        if (sParameterName[0] === sParam) {
-            return sParameterName[1];
-        }
-    }
-    return false;
-}
-
 $(document).ready(function () {
     $('#currentEditGameId').change(function () {
         let option = $('#currentEditGameId option:selected');
@@ -22,17 +7,29 @@ $(document).ready(function () {
         }
         chooseGame(id)
     })
-
     let editGameId = getUrlParameter("currentEditGameId");
     if (editGameId != null) {
         chooseGame(editGameId)
     }
-
     $("#file-upload-form").on("submit", function (e) {
         e.preventDefault();
         setPlayGround()
     })
 });
+
+function getUrlParameter(sParam) {
+    let sPageURL = window.location.search.substring(1),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1];
+        }
+    }
+    return false;
+}
 
 function configureOutPut(playGround) {
     if (playGround != null && playGround !== "") {
@@ -53,26 +50,20 @@ function chooseGame(id) {
             "currentEditGameId": id
         },
         success: function (game) {
-
             let i;
             if (game == null) {
                 return;
             }
-
             document.getElementById('gameName').value = game.name;
             document.getElementById('gameDescription').value = game.description;
-
             let select1 = document.getElementById('currentEditCurrencyId');
             let select2 = document.getElementById('currencyOfACard');
-
             let currencies = game.currencies;
-
             let options = "";
             select1.options.length = 0;
             select2.options.length = 0;
             $(select1).append(`<option value="create" selected>-Создать</option>`);
             $(select2).append(`<option value="none" selected>Нет валюты</option>`);
-
             for (i = 0; i < currencies.length; i++) {
                 let id = currencies[i].id;
                 let name = currencies[i].name;
@@ -80,10 +71,8 @@ function chooseGame(id) {
             }
             $(select1).append(options);
             $(select2).append(options);
-
             select1 = document.getElementById('currentEditDeckId');
             select2 = document.getElementById('deckToShowCards');
-
             select1.options.length = 0;
             select2.options.length = 0;
             $(select1).append(`<option value="create" selected>-Создать</option>`);
@@ -92,7 +81,6 @@ function chooseGame(id) {
             select2.append();
             let decks = game.decks;
             options = "";
-
             for (i = 0; i < decks.length; i++) {
                 let id = decks[i].id;
                 let name = decks[i].name;
@@ -100,9 +88,7 @@ function chooseGame(id) {
             }
             $(select1).append(options);
             $(select2).append(options);
-
             $('#currentEditGameId option[value=' + game.id + ']').prop('selected', true);
-
         },
         error: function (response) {
         }
@@ -113,7 +99,6 @@ function editGame(id) {
     if (id === 'null') return
     let gameName = document.getElementById('gameName').value
     let gameDescription = document.getElementById('gameDescription').value
-
     $.ajax({
         url: '/creator',
         method: 'post',

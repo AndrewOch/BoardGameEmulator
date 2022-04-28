@@ -1,14 +1,10 @@
 <!doctype html>
 <html lang="en">
 <head>
-
     <link rel="stylesheet" href="/resources/css/styles.css">
     <title>Мои игры</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.js"
-            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 </head>
 <body>
-
 <div class="header-bar">
     <div>
         <div class="title"><h1>Эмулятор настольных игр</h1></div>
@@ -32,11 +28,9 @@
         <#list games as game>
             <div class="container-item">
                 <h2>${game.getName()}</h2>
-                <h3>
-                    <p>${game.getDescription()}</p>
-                    <p>Колод: ${game.getDecks()?size}</p>
-                    <p>Валют: ${game.getCurrencies()?size}</p>
-                </h3>
+                <p class="big-text">${game.getDescription()}</p>
+                <p class="big-text">Колод: ${game.getDecks()?size}</p>
+                <p class="big-text">Валют: ${game.getCurrencies()?size}</p>
                 <div class="menu">
                     <form class="menu-option" method="get">
                         <button type="submit" name="currentPlayGameId" value="${game.getId()}">Играть</button>
@@ -66,5 +60,7 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 </body>
 </html>

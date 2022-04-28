@@ -1,18 +1,10 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <script src="https://code.jquery.com/jquery-3.6.0.js"
-            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-    <script src="/resources/javascript/creator/gameEditor.js"></script>
-    <script src="/resources/javascript/creator/currencyEditor.js"></script>
-    <script src="/resources/javascript/creator/deckEditor.js"></script>
-    <script src="/resources/javascript/creator/cardEditor.js"></script>
-
     <link rel="stylesheet" href="/resources/css/styles.css">
     <title>Редактор</title>
-</head >
+</head>
 <body onload="configureOutPut('${game.playGround!""}')">
-
 <div class="header-bar">
     <div>
         <div class="title"><h1>Эмулятор настольных игр</h1></div>
@@ -24,18 +16,16 @@
         <a class="menu-option" href="/logout">Выход</a>
     </div>
 </div>
-
 <div style="margin-top: 1%; text-align: center">
-
     <div class="container-item" style="margin: 1% auto auto; width: 70%; height: 55%">
         <form>
-            <select id="currentEditGameId" name="currentEditGameId" style="margin: 1% auto auto">
+            <label for="currentEditGameId"></label><select id="currentEditGameId" name="currentEditGameId"
+                                                           style="margin: 1% auto auto">
                 <option disabled selected value="none">Выберите</option>
                 <#list games as option>
                     <option value="${option.id}">${option.name}</option>
                 </#list>
             </select>
-
             <p>
                 <label for="gameName"> <input id="gameName" type="text" name="gameName"
                                               placeholder="Название" value="${(game.name)!""}"
@@ -77,18 +67,19 @@
     <div class="container-item">
         <div style="height: 80%;">
             <h2>Колоды</h2>
-            <select id="currentEditDeckId" name="currentEditDeckId" style="width: 80%;">
+            <label for="currentEditDeckId"></label><select id="currentEditDeckId" name="currentEditDeckId"
+                                                           style="width: 80%;">
                 <option value="create" selected>-Создать</option>
             </select>
             <p>
-                <input id="deckName" type="text" name="deckName"
-                       placeholder="Название"
-                       style="font-family: Trattatello, serif;">
+                <label for="deckName"></label><input id="deckName" type="text" name="deckName"
+                                                     placeholder="Название"
+                                                     style="font-family: Trattatello, serif;">
             </p>
             <p>
-               <textarea id="deckDescription" type="text" name="deckDescription"
-                         placeholder="Описание"
-                         style="font-family: Trattatello, serif; height: 60%; width: 80%"></textarea>
+                <label for="deckDescription"></label><textarea id="deckDescription" name="deckDescription"
+                                                               placeholder="Описание"
+                                                               style="font-family: Trattatello, serif; height: 60%; width: 80%"></textarea>
             </p>
             <button onclick="editDeck()">Сохранить</button>
         </div>
@@ -97,27 +88,29 @@
     <div class="container-item">
         <div style="height: 70%;">
             <h2>Карты</h2>
-            <select id="deckToShowCards" name="deckToShowCards" style="width: 80%;">
+            <label for="deckToShowCards"></label><select id="deckToShowCards" name="deckToShowCards"
+                                                         style="width: 80%;">
                 <option value="none" selected disabled>Выбрать колоду</option>
             </select>
             <p>
-                <select id="currentEditCardId" name="currentEditCardId" style="width: 80%;">
+                <label for="currentEditCardId"></label><select id="currentEditCardId" name="currentEditCardId"
+                                                               style="width: 80%;">
                     <option value="create" selected>-Создать</option>
                 </select>
             </p>
             <p>
-                <input id="cardName" type="text" name="cardName"
-                       placeholder="Название"
-                       style="font-family: Trattatello, serif;">
+                <label for="cardName"></label><input id="cardName" type="text" name="cardName"
+                                                     placeholder="Название"
+                                                     style="font-family: Trattatello, serif;">
             </p>
             <p>
-                <textarea id="cardDescription" type="text" name="cardDescription"
-                          placeholder="Описание"
-                          style="font-family: Trattatello, serif; height: 25%; width: 80%"></textarea>
+                <label for="cardDescription"></label><textarea id="cardDescription" name="cardDescription"
+                                                               placeholder="Описание"
+                                                               style="font-family: Trattatello, serif; height: 25%; width: 80%"></textarea>
             </p>
             <p style="width: 80%; margin: auto">
-                <select id="currencyOfACard" name="currencyOfACard"
-                        style="width: 80%; margin: auto">
+                <label for="currencyOfACard"></label><select id="currencyOfACard" name="currencyOfACard"
+                                                             style="width: 80%; margin: auto">
                     <option value="none" selected>Нет валюты</option>
                 </select>
                 <label for="cardValue"><input id="cardValue" class="dice" min="-100" max="100" type="number"
@@ -142,5 +135,12 @@
     </form>
     <img src="/resources/images/playGroundPlaceholder.png" id="playGround" alt="Play Ground" style="width: 97%">
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<script src="/resources/javascript/creator/gameEditor.js"></script>
+<script src="/resources/javascript/creator/currencyEditor.js"></script>
+<script src="/resources/javascript/creator/deckEditor.js"></script>
+<script src="/resources/javascript/creator/cardEditor.js"></script>
 </body>
 </html>

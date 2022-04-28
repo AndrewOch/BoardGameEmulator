@@ -3,7 +3,6 @@ var webSocket;
 function connect(id) {
     document.cookie = 'X-Authorization=' + '123456' + ';path=/';
     webSocket = new WebSocket('ws://localhost:8080/chat');
-
     webSocket.onmessage = function receiveMessage(response) {
         let data = response['data'];
         let json = JSON.parse(data);
@@ -11,7 +10,6 @@ function connect(id) {
         let scrollView = document.getElementById('chatScrollView')
         scrollView.scrollTop = scrollView.scrollHeight;
     };
-
     webSocket.onerror = function errorShow() {
         alert('Ошибка авторизации')
     }
@@ -27,7 +25,6 @@ function enterChat(from) {
     document.getElementById('message').disabled = false
     document.getElementById('message').hidden = false
     document.getElementById('sendMessageButton').hidden = false
-
     document.getElementById('enterChatButton').hidden = true
 }
 

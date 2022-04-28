@@ -5,7 +5,6 @@
     <title>Вход</title>
 </head>
 <body>
-
 <div class="header-bar">
     <div>
         <div class="title"><h1>Эмулятор настольных игр</h1></div>
@@ -30,7 +29,6 @@
                                          placeholder="password"></label>
         </p>
         <button type="submit">Войти</button>
-<#--        <a href="https://oauth.vk.com/authorize?client_id=7998860&redirect_uri=http://localhost:8080/vk&display=page&v=5.131&scope=status%2Cemail">Войти через VK</a>-->
         <#if error??><p class="info-text" style="margin-top: 0">${signInStatus}</p></#if>
     </form>
 </div>

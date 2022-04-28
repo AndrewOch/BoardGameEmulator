@@ -1,16 +1,13 @@
 $(document).ready(function () {
-
     $('#deckToShowCards').change(function () {
         getCardsOfDeck()
     })
-
     $('#currentEditCardId').change(function () {
         chooseCard()
     })
 });
 
 function getCardsOfDeck() {
-
     let option = $('#deckToShowCards option:selected');
     let id;
     if (option.val() !== 'none') {
@@ -21,7 +18,6 @@ function getCardsOfDeck() {
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     $.ajax({
         url: '/creator',
         method: 'post',
@@ -33,11 +29,9 @@ function getCardsOfDeck() {
         },
         success: function (cards) {
             let select = document.getElementById('currentEditCardId');
-
             let options = "";
             select.options.length = 0;
             $(select).append(`<option value="create" selected>-Создать</option>`);
-
             for (let i = 0; i < cards.length; i++) {
                 let id = cards[i].id;
                 let name = cards[i].name;
@@ -52,7 +46,6 @@ function getCardsOfDeck() {
 
 
 function chooseCard() {
-
     let option = $('#currentEditCardId option:selected');
     let id;
     if (option.val() !== 'none') {
@@ -68,7 +61,6 @@ function chooseCard() {
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     $.ajax({
         url: '/creator',
         method: 'post',
@@ -80,11 +72,9 @@ function chooseCard() {
             "currentEditCardId": id
         },
         success: function (card) {
-
             if (card == null) {
                 return;
             }
-
             document.getElementById('cardName').value = card.name;
             document.getElementById('cardDescription').value = card.description;
             document.getElementById('cardValue').value = card.value;
@@ -99,7 +89,6 @@ function chooseCard() {
 }
 
 function editCard() {
-
     let option = $('#currentEditCardId option:selected');
     let id;
     if (option.val() !== 'none') {
@@ -119,7 +108,6 @@ function editCard() {
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     let cardName = document.getElementById('cardName').value
     let cardDescription = document.getElementById('cardDescription').value
     let currencyOption = $('#currencyOfACard option:selected');
@@ -129,7 +117,6 @@ function editCard() {
     }
     let cardValue = document.getElementById('cardValue').value
     let cardCount = document.getElementById('cardCount').value
-
     $.ajax({
         url: '/creator',
         method: 'post',
@@ -146,15 +133,12 @@ function editCard() {
             "cardCopiesCount": cardCount
         },
         success: function (card) {
-
             if (card == null) {
                 return;
             }
-
             document.getElementById('cardName').value = card.name;
             document.getElementById('cardDescription').value = card.description;
             document.getElementById('cardValue').value = card.value;
-
             if (card.currencyId != null) {
                 $('#currencyOfACard option[value=' + card.currencyId + ']').prop('selected', true);
             }
@@ -166,7 +150,6 @@ function editCard() {
 
 
 function createCard() {
-
     let deckOption = $('#deckToShowCards option:selected');
     let deckId;
     if (deckOption.val() !== 'none') {
@@ -177,7 +160,6 @@ function createCard() {
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     let cardName = document.getElementById('cardName').value
     let cardDescription = document.getElementById('cardDescription').value
     let currencyOption = $('#currencyOfACard option:selected');
@@ -187,7 +169,6 @@ function createCard() {
     }
     let cardValue = document.getElementById('cardValue').value
     let cardCount = document.getElementById('cardCount').value
-
     $.ajax({
         url: '/creator',
         method: 'post',
@@ -203,11 +184,9 @@ function createCard() {
             "cardCopiesCount": cardCount
         },
         success: function (card) {
-
             if (card == null) {
                 return;
             }
-
             document.getElementById('cardName').value = card.name;
             document.getElementById('cardDescription').value = card.description;
             document.getElementById('cardValue').value = card.value;

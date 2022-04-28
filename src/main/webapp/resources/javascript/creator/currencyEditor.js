@@ -10,13 +10,11 @@ function chooseCurrency() {
     if (option.val() !== 'none') {
         id = option.val()
     }
-
     let gameOption = $('#currentEditGameId option:selected');
     let gameId;
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     $.ajax({
         url: '/creator',
         method: 'post',
@@ -54,10 +52,8 @@ function editCurrency() {
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     let currencyName = document.getElementById('currencyName').value
     let currencyDescription = document.getElementById('currencyDescription').value
-
     $.ajax({
         url: '/creator',
         method: 'post',
@@ -90,7 +86,6 @@ function createCurrency() {
     }
     let currencyName = document.getElementById('currencyName').value
     let currencyDescription = document.getElementById('currencyDescription').value
-
     $.ajax({
         url: '/creator',
         method: 'post',
