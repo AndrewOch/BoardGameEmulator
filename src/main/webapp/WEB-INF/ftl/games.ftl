@@ -19,7 +19,6 @@
 
 <div style="margin: 0 auto;
     padding: 0;">
-
     <div class="menu">
         <h2 class="menu-option" style="height: 50px">${username}</h2>
     </div>
@@ -32,10 +31,10 @@
                 <p class="big-text">Колод: ${game.getDecks()?size}</p>
                 <p class="big-text">Валют: ${game.getCurrencies()?size}</p>
                 <div class="menu">
-                    <form class="menu-option" method="get">
+                    <form class="menu-option" method="get" action="/games/play_game">
                         <button type="submit" name="currentPlayGameId" value="${game.getId()}">Играть</button>
                     </form>
-                    <form class="menu-option" method="get">
+                    <form class="menu-option" method="get" action="/games/edit_game">
                         <button type="submit" name="currentEditGameId" value="${game.getId()}">Редактировать</button>
                     </form>
                 </div>

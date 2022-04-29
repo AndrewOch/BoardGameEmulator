@@ -4,7 +4,7 @@
     <link rel="stylesheet" href="/resources/css/styles.css">
     <title>Редактор</title>
 </head>
-<body onload="configureOutPut('${game.playGround!""}')">
+<body onload="configureOutPut('${(game.playGround)!""}')">
 <div class="header-bar">
     <div>
         <div class="title"><h1>Эмулятор настольных игр</h1></div>

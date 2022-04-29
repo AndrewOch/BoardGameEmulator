@@ -42,7 +42,7 @@ function takeCard(deckId) {
         return;
     }
     $.ajax({
-        url: '/play',
+        url: '/play/take_card',
         method: 'post',
         dataType: 'json',
         data: {
@@ -74,7 +74,7 @@ function shuffleDeck(deckId) {
         return;
     }
     $.ajax({
-        url: '/play',
+        url: '/play/shuffle_deck',
         method: 'post',
         dataType: 'json',
         data: {

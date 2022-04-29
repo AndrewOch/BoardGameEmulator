@@ -2,12 +2,10 @@ package ru.kpfu.itis.models.forms;
 
 import lombok.*;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Setter
-@Getter
-@EqualsAndHashCode
 public class UserForm {
     private String username;
     private String email;

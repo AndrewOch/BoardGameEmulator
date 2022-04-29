@@ -2,16 +2,10 @@ package ru.kpfu.itis.models.dtos;
 
 import lombok.*;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-@Setter
-@Getter
-@EqualsAndHashCode
+@Data
 public class GameDto {
-    private String currentEditGameId;
-    private String currentPlayGameId;
-
+    private Long currentEditGameId;
+    private Long currentPlayGameId;
     private String gameName;
     private String gameDescription;
 }

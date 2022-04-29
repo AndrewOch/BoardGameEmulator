@@ -40,13 +40,11 @@ function configureOutPut(playGround) {
 }
 
 function chooseGame(id) {
-
     $.ajax({
         url: '/creator',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "chooseGame",
             "currentEditGameId": id
         },
         success: function (game) {
@@ -89,6 +87,13 @@ function chooseGame(id) {
             $(select1).append(options);
             $(select2).append(options);
             $('#currentEditGameId option[value=' + game.id + ']').prop('selected', true);
+
+            let playGround = game.playGround
+            if (playGround != null && playGround !== "") {
+                document.getElementById('playGround').src = "/uploads/" + playGround
+            } else {
+                document.getElementById('playGround').src = "/resources/images/playGroundPlaceholder.png"
+            }
         },
         error: function (response) {
         }
@@ -100,11 +105,10 @@ function editGame(id) {
     let gameName = document.getElementById('gameName').value
     let gameDescription = document.getElementById('gameDescription').value
     $.ajax({
-        url: '/creator',
+        url: '/creator/edit_game',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "editGame",
             "currentEditGameId": id,
             "gameName": gameName,
             "gameDescription": gameDescription
@@ -130,7 +134,6 @@ function setPlayGround() {
     }
 
     let data = new FormData()
-    data.append('editingAction', 'setPlayGround')
     data.append('currentEditGameId', gameId)
 
     var files = $('#playGroundFile')[0].files;
@@ -143,7 +146,7 @@ function setPlayGround() {
     }
 
     $.ajax({
-        url: '/creator',
+        url: '/creator/set_playground',
         type: 'post',
         dataType: 'json',
         enctype: 'multipart/form-data',

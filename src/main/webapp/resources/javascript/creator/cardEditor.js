@@ -19,11 +19,10 @@ function getCardsOfDeck() {
         gameId = gameOption.val()
     }
     $.ajax({
-        url: '/creator',
+        url: '/creator/choose_deck_of_cards',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "chooseDeckOfCards",
             "currentEditGameId": gameId,
             "deckToShowCards": id
         },
@@ -62,11 +61,10 @@ function chooseCard() {
         gameId = gameOption.val()
     }
     $.ajax({
-        url: '/creator',
+        url: '/creator/choose_card',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "chooseCard",
             "currentEditGameId": gameId,
             "deckToShowCards": deckId,
             "currentEditCardId": id
@@ -118,11 +116,10 @@ function editCard() {
     let cardValue = document.getElementById('cardValue').value
     let cardCount = document.getElementById('cardCount').value
     $.ajax({
-        url: '/creator',
+        url: '/creator/edit_card',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "editCard",
             "currentEditGameId": gameId,
             "deckToShowCards": deckId,
             "currentEditCardId": id,
@@ -170,11 +167,10 @@ function createCard() {
     let cardValue = document.getElementById('cardValue').value
     let cardCount = document.getElementById('cardCount').value
     $.ajax({
-        url: '/creator',
+        url: '/creator/create_card',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "createCard",
             "currentEditGameId": gameId,
             "deckToShowCards": deckId,
             "cardName": cardName,

@@ -16,11 +16,10 @@ function chooseCurrency() {
         gameId = gameOption.val()
     }
     $.ajax({
-        url: '/creator',
+        url: '/creator/choose_currency',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "chooseCurrency",
             "currentEditGameId": gameId,
             "currentEditCurrencyId": id
         },
@@ -55,11 +54,10 @@ function editCurrency() {
     let currencyName = document.getElementById('currencyName').value
     let currencyDescription = document.getElementById('currencyDescription').value
     $.ajax({
-        url: '/creator',
+        url: '/creator/edit_currency',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "editCurrency",
             "currentEditGameId": gameId,
             "currentEditCurrencyId": id,
             "currencyName": currencyName,
@@ -87,11 +85,10 @@ function createCurrency() {
     let currencyName = document.getElementById('currencyName').value
     let currencyDescription = document.getElementById('currencyDescription').value
     $.ajax({
-        url: '/creator',
+        url: '/creator/create_currency',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "createCurrency",
             "currentEditGameId": gameId,
             "currencyName": currencyName,
             "currencyDescription": currencyDescription

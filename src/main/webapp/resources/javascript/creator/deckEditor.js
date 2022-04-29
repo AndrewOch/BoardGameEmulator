@@ -17,11 +17,10 @@ function chooseDeck() {
         gameId = gameOption.val()
     }
     $.ajax({
-        url: '/creator',
+        url: '/creator/choose_deck',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "chooseDeck",
             "currentEditGameId": gameId,
             "currentEditDeckId": id
         },
@@ -56,11 +55,10 @@ function editDeck() {
     let deckName = document.getElementById('deckName').value
     let deckDescription = document.getElementById('deckDescription').value
     $.ajax({
-        url: '/creator',
+        url: '/creator/edit_deck',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "editDeck",
             "currentEditGameId": gameId,
             "currentEditDeckId": id,
             "deckName": deckName,
@@ -89,11 +87,10 @@ function createDeck() {
         gameId = gameOption.val()
     }
     $.ajax({
-        url: '/creator',
+        url: '/creator/create_deck',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "createDeck",
             "currentEditGameId": gameId,
             "deckName": deckName,
             "deckDescription": deckDescription

@@ -46,7 +46,7 @@
                 <h3>Колод: ${game.getDecks()?size}</h3>
                 <h3>Валют: ${game.getCurrencies()?size}</h3>
                 <div class="menu">
-                    <form class="menu-option" method="get">
+                    <form class="menu-option" method="post" action="/play_game">
                         <button type="submit" name="currentPlayGameId" value="${game.getId()}">Играть</button>
                     </form>
                 </div>
