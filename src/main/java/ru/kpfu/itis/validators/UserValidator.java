@@ -28,7 +28,6 @@ public class UserValidator implements Validator {
         ValidationUtils.rejectIfEmpty(errors, "email", "email", "Не указан Логин");
         ValidationUtils.rejectIfEmpty(errors, "password", "password", "Не указан Пароль");
         ValidationUtils.rejectIfEmpty(errors, "consent", "consent", "Не указано Согласие");
-
         Pattern pattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
                 Pattern.CASE_INSENSITIVE);
         if (!(pattern.matcher(signUpDto.getEmail()).matches())) {
