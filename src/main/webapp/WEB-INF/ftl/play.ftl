@@ -1,10 +1,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <script src="https://code.jquery.com/jquery-3.6.0.js"
-            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-    <script src="/resources/javascript/play.js"></script>
-
     <link rel="stylesheet" href="/resources/css/styles.css">
     <title>${(game.name)!""}</title>
 </head>
@@ -61,9 +57,11 @@
             <#list game.currencies as currency>
                 <div class="square">
                     <h3>${currency.name}</h3>
-                    <input min="-1000" max="1000" type="number"
-                           placeholder="0"
-                           style="height: 45px; margin: auto auto 10%; width: 60%">
+                    <label>
+                        <input min="-1000" max="1000" type="number"
+                               placeholder="0"
+                               style="height: 45px; margin: auto auto 10%; width: 60%">
+                    </label>
                 </div>
             </#list>
         </div>
@@ -108,5 +106,9 @@
         </div>
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<script src="/resources/javascript/play.js"></script>
 </body>
 </html>

@@ -1,14 +1,10 @@
 <!doctype html>
 <html lang="en">
 <head>
-
     <link rel="stylesheet" href="/resources/css/styles.css">
     <title>Мои игры</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.js"
-            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 </head>
 <body>
-
 <div class="header-bar">
     <div>
         <div class="title"><h1>Эмулятор настольных игр</h1></div>
@@ -23,7 +19,6 @@
 
 <div style="margin: 0 auto;
     padding: 0;">
-
     <div class="menu">
         <h2 class="menu-option" style="height: 50px">${username}</h2>
     </div>
@@ -32,16 +27,14 @@
         <#list games as game>
             <div class="container-item">
                 <h2>${game.getName()}</h2>
-                <h3>
-                    <p>${game.getDescription()}</p>
-                    <p>Колод: ${game.getDecks()?size}</p>
-                    <p>Валют: ${game.getCurrencies()?size}</p>
-                </h3>
+                <p class="big-text">${game.getDescription()}</p>
+                <p class="big-text">Колод: ${game.getDecks()?size}</p>
+                <p class="big-text">Валют: ${game.getCurrencies()?size}</p>
                 <div class="menu">
-                    <form class="menu-option" method="get">
+                    <form class="menu-option" method="get" action="/games/play_game">
                         <button type="submit" name="currentPlayGameId" value="${game.getId()}">Играть</button>
                     </form>
-                    <form class="menu-option" method="get">
+                    <form class="menu-option" method="get" action="/games/edit_game">
                         <button type="submit" name="currentEditGameId" value="${game.getId()}">Редактировать</button>
                     </form>
                 </div>
@@ -66,5 +59,7 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -2,13 +2,7 @@ package ru.kpfu.itis.models.dtos;
 
 import lombok.*;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-@Setter
-@Getter
-@EqualsAndHashCode
-@ToString
+@Data
 public class AuthDto {
     private String login;
     private String password;

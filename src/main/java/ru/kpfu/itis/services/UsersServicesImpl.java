@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.kpfu.itis.models.dtos.AuthDto;
+import ru.kpfu.itis.models.forms.AuthForm;
 import ru.kpfu.itis.models.forms.UserForm;
 import ru.kpfu.itis.models.entities.Auth;
 import ru.kpfu.itis.models.entities.User;
@@ -41,15 +42,15 @@ public class UsersServicesImpl implements UsersService {
     }
 
     @Override
-    public Cookie signIn(AuthDto authDto) {
+    public Cookie signIn(AuthForm authForm) {
 
         User user = null;
-        Optional<User> optional = usersRepository.findByUsername(authDto.getLogin());
+        Optional<User> optional = usersRepository.findByUsername(authForm.getLogin());
         if (optional.isPresent()) user = optional.get();
 
         System.out.println(user);
         if (user != null) {
-            if (passwordEncoder.matches(authDto.getPassword(), user.getPasswordHash())) {
+            if (passwordEncoder.matches(authForm.getPassword(), user.getPasswordHash())) {
                 System.out.println("Вход выполнен!");
                 String cookieValue = UUID.randomUUID().toString();
 

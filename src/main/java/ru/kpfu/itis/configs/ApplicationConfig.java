@@ -48,7 +48,6 @@ public class ApplicationConfig extends WebMvcConfigurationSupport {
         dataSource.setPassword(environment.getProperty("db.password"));
         System.out.println(environment.getProperty("db.user"));
         dataSource.setUrl(environment.getProperty("db.url"));
-
         return dataSource;
     }
 
@@ -64,7 +63,6 @@ public class ApplicationConfig extends WebMvcConfigurationSupport {
         viewResolver.setPrefix("");
         viewResolver.setSuffix(".ftl");
         viewResolver.setContentType("text/html; charset=UTF-8");
-
         return viewResolver;
     }
 
@@ -104,7 +102,6 @@ public class ApplicationConfig extends WebMvcConfigurationSupport {
                 = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource());
         em.setPackagesToScan("ru.kpfu.itis.models");
-
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
         em.setJpaProperties(hibernateProperties());

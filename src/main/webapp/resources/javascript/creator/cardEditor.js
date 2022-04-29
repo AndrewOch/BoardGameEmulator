@@ -1,16 +1,13 @@
 $(document).ready(function () {
-
     $('#deckToShowCards').change(function () {
         getCardsOfDeck()
     })
-
     $('#currentEditCardId').change(function () {
         chooseCard()
     })
 });
 
 function getCardsOfDeck() {
-
     let option = $('#deckToShowCards option:selected');
     let id;
     if (option.val() !== 'none') {
@@ -21,23 +18,19 @@ function getCardsOfDeck() {
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     $.ajax({
-        url: '/creator',
+        url: '/creator/choose_deck_of_cards',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "chooseDeckOfCards",
             "currentEditGameId": gameId,
             "deckToShowCards": id
         },
         success: function (cards) {
             let select = document.getElementById('currentEditCardId');
-
             let options = "";
             select.options.length = 0;
             $(select).append(`<option value="create" selected>-Создать</option>`);
-
             for (let i = 0; i < cards.length; i++) {
                 let id = cards[i].id;
                 let name = cards[i].name;
@@ -52,7 +45,6 @@ function getCardsOfDeck() {
 
 
 function chooseCard() {
-
     let option = $('#currentEditCardId option:selected');
     let id;
     if (option.val() !== 'none') {
@@ -68,23 +60,19 @@ function chooseCard() {
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     $.ajax({
-        url: '/creator',
+        url: '/creator/choose_card',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "chooseCard",
             "currentEditGameId": gameId,
             "deckToShowCards": deckId,
             "currentEditCardId": id
         },
         success: function (card) {
-
             if (card == null) {
                 return;
             }
-
             document.getElementById('cardName').value = card.name;
             document.getElementById('cardDescription').value = card.description;
             document.getElementById('cardValue').value = card.value;
@@ -99,7 +87,6 @@ function chooseCard() {
 }
 
 function editCard() {
-
     let option = $('#currentEditCardId option:selected');
     let id;
     if (option.val() !== 'none') {
@@ -119,7 +106,6 @@ function editCard() {
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     let cardName = document.getElementById('cardName').value
     let cardDescription = document.getElementById('cardDescription').value
     let currencyOption = $('#currencyOfACard option:selected');
@@ -129,13 +115,11 @@ function editCard() {
     }
     let cardValue = document.getElementById('cardValue').value
     let cardCount = document.getElementById('cardCount').value
-
     $.ajax({
-        url: '/creator',
+        url: '/creator/edit_card',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "editCard",
             "currentEditGameId": gameId,
             "deckToShowCards": deckId,
             "currentEditCardId": id,
@@ -146,15 +130,12 @@ function editCard() {
             "cardCopiesCount": cardCount
         },
         success: function (card) {
-
             if (card == null) {
                 return;
             }
-
             document.getElementById('cardName').value = card.name;
             document.getElementById('cardDescription').value = card.description;
             document.getElementById('cardValue').value = card.value;
-
             if (card.currencyId != null) {
                 $('#currencyOfACard option[value=' + card.currencyId + ']').prop('selected', true);
             }
@@ -166,7 +147,6 @@ function editCard() {
 
 
 function createCard() {
-
     let deckOption = $('#deckToShowCards option:selected');
     let deckId;
     if (deckOption.val() !== 'none') {
@@ -177,7 +157,6 @@ function createCard() {
     if (gameOption.val() !== 'none') {
         gameId = gameOption.val()
     }
-
     let cardName = document.getElementById('cardName').value
     let cardDescription = document.getElementById('cardDescription').value
     let currencyOption = $('#currencyOfACard option:selected');
@@ -187,13 +166,11 @@ function createCard() {
     }
     let cardValue = document.getElementById('cardValue').value
     let cardCount = document.getElementById('cardCount').value
-
     $.ajax({
-        url: '/creator',
+        url: '/creator/create_card',
         method: 'post',
         dataType: 'json',
         data: {
-            "editingAction": "createCard",
             "currentEditGameId": gameId,
             "deckToShowCards": deckId,
             "cardName": cardName,
@@ -203,11 +180,9 @@ function createCard() {
             "cardCopiesCount": cardCount
         },
         success: function (card) {
-
             if (card == null) {
                 return;
             }
-
             document.getElementById('cardName').value = card.name;
             document.getElementById('cardDescription').value = card.description;
             document.getElementById('cardValue').value = card.value;

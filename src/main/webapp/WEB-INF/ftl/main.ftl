@@ -1,12 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
-
     <link rel="stylesheet" href="/resources/css/styles.css">
     <title>Эмулятор настольных игр</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.js"
-            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
-    <script src="/resources/javascript/chat.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -50,7 +46,7 @@
                 <h3>Колод: ${game.getDecks()?size}</h3>
                 <h3>Валют: ${game.getCurrencies()?size}</h3>
                 <div class="menu">
-                    <form class="menu-option" method="get">
+                    <form class="menu-option" method="post" action="/play_game">
                         <button type="submit" name="currentPlayGameId" value="${game.getId()}">Играть</button>
                     </form>
                 </div>
@@ -58,5 +54,9 @@
         </#list>
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+<script src="/resources/javascript/chat.js"></script>
 </body>
 </html>

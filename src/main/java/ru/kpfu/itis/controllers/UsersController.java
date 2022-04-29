@@ -8,6 +8,7 @@ import org.springframework.web.servlet.ModelAndView;
 import ru.kpfu.itis.models.dtos.AuthDto;
 import ru.kpfu.itis.models.dtos.SignUpDto;
 import ru.kpfu.itis.models.entities.User;
+import ru.kpfu.itis.models.forms.AuthForm;
 import ru.kpfu.itis.models.forms.UserForm;
 import ru.kpfu.itis.services.interfaces.UsersService;
 
@@ -33,7 +34,11 @@ public class UsersController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/auth")
     private ModelAndView authorise(AuthDto authDto, HttpServletResponse response) {
-        Cookie cookie = usersService.signIn(authDto);
+        AuthForm authForm = AuthForm.builder()
+                .login(authDto.getLogin())
+                .password(authDto.getPassword())
+                .build();
+        Cookie cookie = usersService.signIn(authForm);
 
         ModelAndView modelAndView = new ModelAndView();
         if (cookie != null) {
@@ -97,12 +102,12 @@ public class UsersController {
 
             User user = usersService.register(userForm);
             if (user != null) {
-                AuthDto authDto = new AuthDto().builder()
+                AuthForm authForm = AuthForm.builder()
                         .login(user.getUsername())
                         .password(password)
                         .build();
 
-                Cookie cookie = usersService.signIn(authDto);
+                Cookie cookie = usersService.signIn(authForm);
                 cookie.setMaxAge(10 * 60 * 60);
 
                 response.addCookie(cookie);

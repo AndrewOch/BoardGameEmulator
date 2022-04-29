@@ -1,11 +1,10 @@
 package ru.kpfu.itis.models.dtos;
 
-import lombok.*;
+import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-public class EditGameDto {
+public class PlaygroundDto {
     private Long currentEditGameId;
-    private String gameName;
-    private String gameDescription;
+    private MultipartFile playGroundFile;
 }
