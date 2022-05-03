@@ -22,12 +22,8 @@ public class UsersController {
     private UsersService usersService;
 
     @RequestMapping(method = RequestMethod.GET, value = "/auth")
-    private ModelAndView authorisationPage(String redirect) {
+    private ModelAndView authorisationPage() {
         ModelAndView modelAndView = new ModelAndView();
-        if (redirect != null) {
-            modelAndView.setViewName("redirect:/" + redirect);
-            return modelAndView;
-        }
         modelAndView.setViewName("authorisation");
         return modelAndView;
     }
@@ -54,12 +50,8 @@ public class UsersController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/register")
-    private ModelAndView signUpPage(String redirect) {
+    private ModelAndView signUpPage() {
         ModelAndView modelAndView = new ModelAndView();
-        if (redirect != null) {
-            modelAndView.setViewName("redirect:/" + redirect);
-            return modelAndView;
-        }
         modelAndView.setViewName("register");
         return modelAndView;
     }

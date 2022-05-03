@@ -117,7 +117,7 @@ function editCard() {
     let cardCount = document.getElementById('cardCount').value
     $.ajax({
         url: '/creator/edit_card',
-        method: 'post',
+        method: 'put',
         dataType: 'json',
         data: {
             "currentEditGameId": gameId,

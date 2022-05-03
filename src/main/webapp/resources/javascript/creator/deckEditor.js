@@ -56,7 +56,7 @@ function editDeck() {
     let deckDescription = document.getElementById('deckDescription').value
     $.ajax({
         url: '/creator/edit_deck',
-        method: 'post',
+        method: 'put',
         dataType: 'json',
         data: {
             "currentEditGameId": gameId,

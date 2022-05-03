@@ -106,7 +106,7 @@ function editGame(id) {
     let gameDescription = document.getElementById('gameDescription').value
     $.ajax({
         url: '/creator/edit_game',
-        method: 'post',
+        method: 'put',
         dataType: 'json',
         data: {
             "currentEditGameId": id,

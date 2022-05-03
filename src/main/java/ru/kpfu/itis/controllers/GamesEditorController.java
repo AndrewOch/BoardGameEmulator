@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -68,7 +69,7 @@ public class GamesEditorController {
         response.getWriter().println(json);
     }
 
-    @PostMapping("/edit_game")
+    @PutMapping("/edit_game")
     public void editGame(EditGameDto editGameDto, HttpServletResponse response) throws IOException {
         String gameName = editGameDto.getGameName();
         String gameDescription = editGameDto.getGameDescription();
@@ -92,7 +93,7 @@ public class GamesEditorController {
         response.getWriter().println(json);
     }
 
-    @PostMapping("/edit_currency")
+    @PutMapping("/edit_currency")
     public void editCurrency(CurrencyDto currencyDto, HttpServletResponse response) throws IOException {
         Long currentEditCurrencyId = currencyDto.getCurrentEditCurrencyId();
         String currencyName = currencyDto.getCurrencyName();
@@ -129,7 +130,7 @@ public class GamesEditorController {
         response.getWriter().println(json);
     }
 
-    @PostMapping("/edit_deck")
+    @PutMapping("/edit_deck")
     public void editDeck(DeckDto deckDto, HttpServletResponse response) throws IOException {
         Long currentEditDeckId = deckDto.getCurrentEditDeckId();
         String deckName = deckDto.getDeckName();
@@ -175,7 +176,7 @@ public class GamesEditorController {
         }
     }
 
-    @PostMapping("/edit_card")
+    @PutMapping("/edit_card")
     public void editCard(CardDto cardDto, HttpServletResponse response) throws IOException {
         Long deckToShowCards = cardDto.getDeckToShowCards();
         Long currentEditCardId = cardDto.getCurrentEditCardId();

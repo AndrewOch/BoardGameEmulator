@@ -12,12 +12,8 @@
 </div>
 <div class="center, container" style="height: 40%;">
     <div class="sign-in-top-bar">
-        <form class="menu-option" method="get">
-            <button class="selected" name="redirect" type="submit" value="auth">Вход</button>
-        </form>
-        <form class="menu-option" method="get">
-            <button type="submit" name="redirect" value="register">Регистрация</button>
-        </form>
+        <a class="selected" href="/auth">Вход</a>
+        <a href="/register">Регистрация</a>
     </div>
     <form method="post">
         <p class="text">Логин</p>

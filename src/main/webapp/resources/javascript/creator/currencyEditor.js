@@ -55,7 +55,7 @@ function editCurrency() {
     let currencyDescription = document.getElementById('currencyDescription').value
     $.ajax({
         url: '/creator/edit_currency',
-        method: 'post',
+        method: 'put',
         dataType: 'json',
         data: {
             "currentEditGameId": gameId,
